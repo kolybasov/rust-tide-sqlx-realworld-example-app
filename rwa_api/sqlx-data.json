@@ -1,0 +1,67 @@
+{
+  "db": "PostgreSQL",
+  "c1d8d3ac6fd80ddb4c4241bc030894485518d55d5fb1ce6ad54a0511bc932832": {
+    "query": "\n            INSERT INTO \"users\" (\"email\", \"password\", \"username\") \n            VALUES ($1, $2, $3) \n            RETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "password",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    }
+  }
+}
