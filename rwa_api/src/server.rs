@@ -1,4 +1,4 @@
-use crate::api::register;
+use crate::api::{login, register};
 use sqlx::{Pool, Postgres};
 use tide::security::CorsMiddleware;
 
@@ -22,6 +22,7 @@ impl Server {
 
         // Routes
         app.at("/users").post(register);
+        app.at("/users/login").post(login);
 
         app
     }
