@@ -1,6 +1,6 @@
-use crate::db::{User, UserDto};
+use crate::db::{User, UserDto, UserResponse};
 use crate::State;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use sqlx::query_as;
 use tide::{Body, Request, Response, Result, StatusCode};
 
@@ -15,12 +15,7 @@ struct LoginPayloadUser {
     password: String,
 }
 
-#[derive(Debug, Serialize)]
-struct LoginResponse {
-    user: UserDto,
-}
-
-pub async fn login(mut req: Request<State>) -> Result<Response> {
+pub async fn login(mut req: Request<State>) -> Result {
     let payload: LoginPayload = req.body_json().await?;
     let state = req.state();
 
@@ -38,7 +33,7 @@ pub async fn login(mut req: Request<State>) -> Result<Response> {
         let mut res = Response::new(StatusCode::Ok);
 
         let token = state.jwt.sign(&user)?;
-        let body = LoginResponse {
+        let body = UserResponse {
             user: UserDto::with_token(user, token),
         };
         res.set_body(Body::from_json(&body)?);

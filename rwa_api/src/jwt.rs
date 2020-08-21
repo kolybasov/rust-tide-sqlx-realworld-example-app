@@ -6,44 +6,45 @@ use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct JWT {
-    secret: String,
+    encoding_key: EncodingKey,
+    decoding_key: DecodingKey<'static>,
+    headers: Header,
+    validations: Validation,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Claims {
     exp: i64,
-    data: JWTData,
+    pub data: JWTData,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JWTData {
-    id: Uuid,
+    pub id: Uuid,
 }
 
 impl JWT {
     pub fn new(secret: String) -> Self {
-        JWT { secret }
+        let bytes = secret.as_bytes();
+
+        JWT {
+            encoding_key: EncodingKey::from_secret(bytes),
+            decoding_key: DecodingKey::from_secret(bytes).into_static(),
+            headers: Header::default(),
+            validations: Validation::default(),
+        }
     }
 
     pub fn sign(&self, user: &User) -> errors::Result<String> {
         let claims = Claims {
             data: JWTData { id: user.id },
-            exp: Utc::now().timestamp(),
+            exp: Utc::now().timestamp() + 604800,
         };
-        encode(
-            &Header::default(),
-            &claims,
-            &EncodingKey::from_secret(self.secret.as_bytes()),
-        )
+        encode(&self.headers, &claims, &self.encoding_key)
     }
 
-    pub fn verify(&self, token: String) -> errors::Result<Claims> {
-        let data = decode::<Claims>(
-            &token,
-            &DecodingKey::from_secret(self.secret.as_bytes()),
-            &Validation::default(),
-        )?;
-
+    pub fn verify(&self, token: &str) -> errors::Result<Claims> {
+        let data = decode::<Claims>(token, &self.decoding_key, &self.validations)?;
         Ok(data.claims)
     }
 }

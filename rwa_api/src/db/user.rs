@@ -2,7 +2,7 @@ use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {
     pub id: Uuid,
     pub username: String,
@@ -25,6 +25,11 @@ pub struct UserDto {
     pub token: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct UserResponse {
+    pub user: UserDto,
 }
 
 impl UserDto {

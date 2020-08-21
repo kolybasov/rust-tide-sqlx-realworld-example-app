@@ -1,13 +1,8 @@
-use crate::db::{User, UserDto};
+use crate::db::{User, UserDto, UserResponse};
 use crate::State;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use sqlx::query_as;
 use tide::{Body, Request, Response, Result, StatusCode};
-
-#[derive(Debug, Serialize)]
-struct RegisterResponse {
-    user: UserDto,
-}
 
 #[derive(Debug, Deserialize)]
 struct RegisterPayload {
@@ -21,7 +16,7 @@ struct RegisterPayloadUser {
     username: String,
 }
 
-pub async fn register(mut req: Request<State>) -> Result<Response> {
+pub async fn register(mut req: Request<State>) -> Result {
     let payload: RegisterPayload = req.body_json().await?;
     let state = req.state();
 
@@ -43,7 +38,7 @@ pub async fn register(mut req: Request<State>) -> Result<Response> {
 
     let token = state.jwt.sign(&user)?;
     let mut res = Response::new(StatusCode::Created);
-    let body = RegisterResponse {
+    let body = UserResponse {
         user: UserDto::with_token(user, token),
     };
     res.set_body(Body::from_json(&body)?);
