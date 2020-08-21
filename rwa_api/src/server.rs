@@ -1,4 +1,4 @@
-use crate::api::{get_user, login, register, AuthMiddleware};
+use crate::api::{get_user, login, register, update_user, AuthMiddleware};
 use sqlx::{Pool, Postgres};
 use tide::security::CorsMiddleware;
 
@@ -23,7 +23,10 @@ impl Server {
         // Routes
         app.at("/users").post(register);
         app.at("/users/login").post(login);
-        app.at("/user").with(AuthMiddleware).get(get_user);
+        app.at("/user")
+            .with(AuthMiddleware)
+            .get(get_user)
+            .put(update_user);
 
         app
     }

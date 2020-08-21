@@ -14,6 +14,33 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct UserUpdate {
+    pub email: Option<String>,
+    pub username: Option<String>,
+    pub password: Option<String>,
+    pub image: Option<String>,
+    pub bio: Option<String>,
+}
+
+impl UserUpdate {
+    pub fn update(self, user: User) -> anyhow::Result<Self> {
+        let password = if let Some(plain) = self.password {
+            bcrypt::hash(&plain, bcrypt::DEFAULT_COST)?
+        } else {
+            user.password
+        };
+
+        Ok(UserUpdate {
+            email: self.email.or(Some(user.email)),
+            username: self.username.or(Some(user.username)),
+            image: self.image.or(user.image),
+            bio: self.bio.or(user.bio),
+            password: Some(password),
+        })
+    }
+}
+
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UserDto {

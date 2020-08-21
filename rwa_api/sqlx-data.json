@@ -1,5 +1,89 @@
 {
   "db": "PostgreSQL",
+  "4f08dfdc958d419e68ab9dcd3a1252715960e2869373dfe11436d0840a12eabb": {
+    "query": "\n            UPDATE users \n            SET email = $2,\n                username = $3,\n                password = $4,\n                image = $5,\n                bio = $6\n            WHERE id = $1\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Text"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "511019f9528f584738d435c898c7086865e2bf80975817332042b1a0c0150aae": {
+    "query": "\n            UPDATE users \n            SET email = $2,\n                username = $3,\n                password = $4,\n                image = $5,\n                bio = $6\n            WHERE id = $1\n            RETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "password",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    }
+  },
   "843923b9a0257cf80f1dff554e7dc8fdfc05f489328e8376513124dfb42996e3": {
     "query": "SELECT * FROM users WHERE id = $1",
     "describe": {
