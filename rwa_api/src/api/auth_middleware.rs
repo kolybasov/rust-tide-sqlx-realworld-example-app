@@ -4,7 +4,25 @@ use sqlx::query_as;
 use tide::http::headers;
 use tide::{Middleware, Next, Request, Response, Result, StatusCode};
 
-pub struct AuthMiddleware;
+pub struct AuthMiddleware {
+    auth_required: bool,
+}
+
+impl Default for AuthMiddleware {
+    fn default() -> Self {
+        AuthMiddleware {
+            auth_required: true,
+        }
+    }
+}
+
+impl AuthMiddleware {
+    pub fn optional() -> Self {
+        AuthMiddleware {
+            auth_required: false,
+        }
+    }
+}
 
 #[async_trait::async_trait]
 impl Middleware<State> for AuthMiddleware {
@@ -29,6 +47,11 @@ impl Middleware<State> for AuthMiddleware {
             }
         }
 
-        Ok(Response::new(StatusCode::Unauthorized))
+        if self.auth_required {
+            Ok(Response::new(StatusCode::Unauthorized))
+        } else {
+            let res = next.run(req).await;
+            Ok(res)
+        }
     }
 }

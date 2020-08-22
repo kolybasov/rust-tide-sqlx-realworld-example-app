@@ -6,4 +6,4 @@ mod user;
 pub use article::Article;
 pub use comment::Comment;
 pub use tag::Tag;
-pub use user::{User, UserDto, UserResponse, UserUpdate};
+pub use user::{ProfileDto, ProfileResponse, User, UserDto, UserResponse, UserUpdate};

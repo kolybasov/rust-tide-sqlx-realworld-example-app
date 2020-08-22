@@ -1,4 +1,7 @@
-use crate::api::{get_user, login, register, update_user, AuthMiddleware};
+use crate::api::{
+    follow_profile, get_profile, get_user, login, register, unfollow_profile, update_user,
+    AuthMiddleware,
+};
 use sqlx::{Pool, Postgres};
 use tide::security::CorsMiddleware;
 
@@ -17,16 +20,25 @@ impl Server {
 
         let mut app = tide::with_state(state);
 
-        // Middlewares
+        /* Middlewares */
         app.with(CorsMiddleware::new());
 
-        // Routes
+        /* Routes */
+        // Users
         app.at("/users").post(register);
         app.at("/users/login").post(login);
         app.at("/user")
-            .with(AuthMiddleware)
+            .with(AuthMiddleware::default())
             .get(get_user)
             .put(update_user);
+        // Profiles
+        app.at("/profiles/:username")
+            .with(AuthMiddleware::optional())
+            .get(get_profile);
+        app.at("/profiles/:username/follow")
+            .with(AuthMiddleware::default())
+            .post(follow_profile)
+            .delete(unfollow_profile);
 
         app
     }

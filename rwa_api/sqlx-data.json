@@ -1,17 +1,103 @@
 {
   "db": "PostgreSQL",
-  "4f08dfdc958d419e68ab9dcd3a1252715960e2869373dfe11436d0840a12eabb": {
-    "query": "\n            UPDATE users \n            SET email = $2,\n                username = $3,\n                password = $4,\n                image = $5,\n                bio = $6\n            WHERE id = $1\n        ",
+  "0fe42c2a95976bb11b000489cd062e5f50f84ce1511f7bffd09b031fe0b557f3": {
+    "query": "SELECT username, bio, image, false as \"following\"  FROM users \n        WHERE username = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
+  "14c2556dff954dc7040a27f6262e9ea5d492240e280a758fee750dd257243ea0": {
+    "query": "INSERT INTO users_followers (follower_id, following_id) VALUES ($1, $2)",
     "describe": {
       "columns": [],
       "parameters": {
         "Left": [
           "Uuid",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Text"
+          "Uuid"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "364ff16dc54865479730cb38cfe5a08fd2c7e217a4a15d99fbdd29488b2170ab": {
+    "query": "\n            SELECT username, bio, image, (uf.following_id IS NOT NULL) \"following!\"  FROM users u\n            LEFT JOIN users_followers uf ON uf.following_id = u.id AND uf.follower_id = $2\n            WHERE u.username = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
+  "5057bc6c541357e9e97b18a1fcbb9b9f86c7f81a4fe5fb63165a97f13a80619b": {
+    "query": "DELETE FROM users_followers WHERE follower_id = $1 AND following_id = $2",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Uuid"
         ]
       },
       "nullable": []
@@ -84,6 +170,146 @@
       ]
     }
   },
+  "606364c79e0990deb07dfbe6c32b3d302d083ec5333f3a5ce04113c38a041100": {
+    "query": "SELECT * FROM users WHERE username = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "password",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    }
+  },
+  "6cadf880b4a1c072c8bfd4fcca4769a08b5fe02d9c2e2acc82ac90dcbaac94d0": {
+    "query": "\n            SELECT username, bio, image, uf IS NOT NULL as \"following\"  FROM users u\n            LEFT JOIN users_followers uf ON u.id = uf.following_id\n            WHERE u.username = $1 AND\n                  uf.follower_id = $2\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
+  "70afc967b404165b78d3b614f4cd34cc0d35a6981ee3d8215ad7e3cfca9fa9ee": {
+    "query": "\n            SELECT username, bio, image, (uf.following_id IS NOT NULL) as \"following!\"  FROM users u\n            LEFT JOIN users_followers uf ON uf.following_id = u.id AND uf.follower_id = $2\n            WHERE u.username = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
   "843923b9a0257cf80f1dff554e7dc8fdfc05f489328e8376513124dfb42996e3": {
     "query": "SELECT * FROM users WHERE id = $1",
     "describe": {
@@ -143,6 +369,201 @@
         true,
         false,
         false
+      ]
+    }
+  },
+  "8c48e5467320ef57752b2a3123b1477cde592b9f99741e2ae68153c62db70a6b": {
+    "query": "\n            SELECT username, bio, image, (uf.following_id IS NOT NULL) as \"following\"  FROM users u\n            LEFT JOIN users_followers uf ON uf.following_id = u.id AND uf.follower_id = $2\n            WHERE u.username = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
+  "9ae490714a3b726853b2798bb54e9dd155731a5fb2488712c6d3488266a87311": {
+    "query": "\n            SELECT username, bio, image, false as \"following\"  FROM users u\n            LEFT JOIN users_followers uf ON u.id = uf.following_id\n            WHERE u.username = $1 AND\n                  uf.follower_id = $2\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
+  "9fe1cb2f984948e1160d3d81ea1cb7144e98db9ef6e97dc759e9731ee6c6d6c8": {
+    "query": "\n            SELECT username, bio, image, uf IS NOT NULL as \"following!\"  FROM users u\n            LEFT JOIN users_followers uf ON u.id = uf.following_id\n            WHERE u.username = $1 AND\n                  uf.follower_id = $2\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
+  "b0fdc29c9bf5628516ff77833fd05437762d863fd736e0ae5469c64f5c059056": {
+    "query": "\n            SELECT username, bio, image, FALSE \"following!\"  FROM users u\n            LEFT JOIN users_followers uf ON uf.following_id = u.id AND uf.follower_id = $2\n            WHERE u.username = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
+  "b310b78f1f3ca24ca2d57c4c35f0e64466f7a74d5e883de7982dcd51447fa1cb": {
+    "query": "\n            SELECT username, bio, image, uf IS NOT NULL as \"following!\"  FROM users u\n            LEFT JOIN users_followers uf ON uf.following_id = u.id AND uf.follower_id = $2\n            WHERE u.username = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
       ]
     }
   },
@@ -210,6 +631,107 @@
       ]
     }
   },
+  "d4e2d567d1cff8dc291875a2f5de530b31c3eb667298a95108af90550e393ce9": {
+    "query": "SELECT *  FROM users WHERE username = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "password",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    }
+  },
+  "deac3de80d331188f6ba0c67b497298af63b8b4d0e50d130b010d8653425f349": {
+    "query": "\n            SELECT username, bio, image, uf.follower_id IS NOT NULL as \"following!\"  FROM users u\n            LEFT JOIN users_followers uf ON uf.following_id = u.id AND uf.follower_id = $2\n            WHERE u.username = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
   "f3f58600e971f1be6cbe206bba24f77769f54c6230e28f5b3dc719b869d9cb3f": {
     "query": "SELECT * FROM users WHERE email = $1",
     "describe": {
@@ -269,6 +791,44 @@
         true,
         false,
         false
+      ]
+    }
+  },
+  "f68319c9c6e8683538786c981a2b74c94d6cb3ddeeac50377feb696836498000": {
+    "query": "SELECT username, bio, image, FALSE \"following!\"  FROM users WHERE username = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        true,
+        true,
+        null
       ]
     }
   }

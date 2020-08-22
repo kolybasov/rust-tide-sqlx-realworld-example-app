@@ -42,33 +42,51 @@ impl UserUpdate {
 }
 
 #[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct UserDto {
-    pub id: Uuid,
-    pub email: String,
-    pub username: String,
-    pub bio: Option<String>,
-    pub image: Option<String>,
-    pub token: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+pub struct UserResponse {
+    pub user: UserDto,
 }
 
 #[derive(Serialize, Debug)]
-pub struct UserResponse {
-    pub user: UserDto,
+#[serde(rename_all = "camelCase")]
+pub struct UserDto {
+    pub email: String,
+    pub token: String,
+    pub username: String,
+    pub bio: Option<String>,
+    pub image: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ProfileDto {
+    pub username: String,
+    pub bio: Option<String>,
+    pub image: Option<String>,
+    pub following: bool,
+}
+
+impl From<User> for ProfileDto {
+    fn from(user: User) -> Self {
+        ProfileDto {
+            username: user.username,
+            bio: user.bio,
+            image: user.image,
+            following: false,
+        }
+    }
+}
+
+#[derive(Serialize, Debug)]
+pub struct ProfileResponse {
+    pub profile: ProfileDto,
 }
 
 impl UserDto {
     pub fn with_token(user: User, token: String) -> Self {
         UserDto {
-            id: user.id,
             email: user.email,
             username: user.username,
             bio: user.bio,
             image: user.image,
-            created_at: user.created_at,
-            updated_at: user.updated_at,
             token,
         }
     }
