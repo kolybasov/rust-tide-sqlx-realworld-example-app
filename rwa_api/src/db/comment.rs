@@ -1,3 +1,4 @@
+use crate::db::ProfileDto;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -9,4 +10,19 @@ pub struct Comment {
     pub article_id: i64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CommentDto {
+    pub id: i32,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub body: String,
+    pub author: ProfileDto,
+}
+
+#[derive(Serialize, Debug)]
+pub struct CommentsResponse {
+    pub comments: Vec<CommentDto>,
 }
