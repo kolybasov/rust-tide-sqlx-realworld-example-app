@@ -30,8 +30,8 @@ pub async fn get_article(req: Request<State>) -> Result {
     let author = query_as!(
         ProfileDto,
         r#"
-            SELECT username, bio, image, (uf.following_id IS NOT NULL) "following!"  FROM users u
-            LEFT JOIN users_followers uf ON uf.following_id = u.id AND uf.follower_id = $2
+            SELECT username, bio, image, (uf.leader_id IS NOT NULL) "following!"  FROM users u
+            LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $2
             WHERE u.id = $1
         "#,
         article.author_id,

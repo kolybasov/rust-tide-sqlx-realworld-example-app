@@ -17,7 +17,7 @@ pub async fn follow_profile(req: Request<State>) -> Result {
     .await?;
 
     query!(
-        "INSERT INTO users_followers (follower_id, following_id) VALUES ($1, $2)",
+        "INSERT INTO users_followers (follower_id, leader_id) VALUES ($1, $2)",
         current_user_id,
         user.id
     )

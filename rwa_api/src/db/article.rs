@@ -35,6 +35,8 @@ pub struct ArticleResponse {
 }
 
 #[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct ArticlesResponse {
     pub articles: Vec<ArticleDto>,
+    pub articles_count: usize,
 }

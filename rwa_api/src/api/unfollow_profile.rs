@@ -17,7 +17,7 @@ pub async fn unfollow_profile(req: Request<State>) -> Result {
     .await?;
 
     query!(
-        "DELETE FROM users_followers WHERE follower_id = $1 AND following_id = $2",
+        "DELETE FROM users_followers WHERE follower_id = $1 AND leader_id = $2",
         current_user_id,
         user.id
     )
