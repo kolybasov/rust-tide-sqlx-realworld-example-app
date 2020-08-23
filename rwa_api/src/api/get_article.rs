@@ -1,6 +1,6 @@
 use crate::db::{ArticleDto, ArticleResponse, ProfileDto, User};
 use crate::State;
-use sqlx::{query, query_as};
+use sqlx::query;
 use tide::{Body, Request, Response, Result, StatusCode};
 
 pub async fn get_article(req: Request<State>) -> Result {
@@ -11,31 +11,25 @@ pub async fn get_article(req: Request<State>) -> Result {
     let article = query!(
         r#"
             SELECT a.*, 
-                   ARRAY_AGG(at.tag_id) "tag_list!",
+                   ARRAY_AGG(at.tag_id) "tag_list!: Vec<Option<String>>",
                    COUNT(DISTINCT af.article_id) "favorites_count!",
-                   af2.user_id IS NOT NULL "favorited!"
+                   BOOL_OR(af2.user_id IS NOT NULL) "favorited!",
+                   u.username "author_username!",
+                   u.image "author_image",
+                   u.bio "author_bio",
+                   BOOL_OR(uf.follower_id IS NOT NULL) "author_following!"
             FROM articles a
             LEFT JOIN articles_tags at ON at.article_id = a.id
             LEFT JOIN articles_favorites af ON af.article_id = a.id
             LEFT JOIN articles_favorites af2 ON af2.article_id = a.id AND af2.user_id = $2
+            INNER JOIN users u 
+                LEFT JOIN users_followers uf ON uf.leader_id = u.id
+                ON u.id = a.author_id
             WHERE a.slug = $1
-            GROUP BY a.id, af2.user_id
+            GROUP BY a.id, u.username, u.image, u.bio
         "#,
         slug,
         current_user_id,
-    )
-    .fetch_one(&state.db_pool)
-    .await?;
-
-    let author = query_as!(
-        ProfileDto,
-        r#"
-            SELECT username, bio, image, (uf.leader_id IS NOT NULL) "following!"  FROM users u
-            LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $2
-            WHERE u.id = $1
-        "#,
-        article.author_id,
-        current_user_id
     )
     .fetch_one(&state.db_pool)
     .await?;
@@ -48,10 +42,15 @@ pub async fn get_article(req: Request<State>) -> Result {
             body: article.body,
             created_at: article.created_at,
             updated_at: article.updated_at,
-            tag_list: article.tag_list,
+            tag_list: article.tag_list.into_iter().filter_map(|tag| tag).collect(),
             favorited: article.favorited,
             favorites_count: article.favorites_count as usize,
-            author,
+            author: ProfileDto {
+                username: article.author_username,
+                bio: article.author_bio,
+                image: article.author_image,
+                following: article.author_following,
+            },
         },
     };
 

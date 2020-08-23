@@ -7,3 +7,8 @@ pub struct Tag {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
+
+#[derive(Debug, Serialize)]
+pub struct TagsResponse {
+    pub tags: Vec<String>,
+}

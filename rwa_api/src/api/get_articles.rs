@@ -21,7 +21,7 @@ pub async fn get_articles(req: Request<State>) -> Result {
     let articles = query!(
         r#"
             SELECT a.*, 
-                   ARRAY_AGG(at.tag_id) "tag_list!",
+                   ARRAY_AGG(at.tag_id) "tag_list!: Vec<Option<String>>",
                    COUNT(DISTINCT af.article_id) "favorites_count!",
                    BOOL_OR(af2.user_id IS NOT NULL) "favorited!",
                    u.username "author_username",
@@ -38,7 +38,7 @@ pub async fn get_articles(req: Request<State>) -> Result {
             WHERE ($2::VARCHAR IS NULL OR at.tag_id = $2::VARCHAR) AND
                   ($3::VARCHAR IS NULL OR u.username = $3::VARCHAR) AND
                   ($4::BOOL IS NULL OR (af2.user_id IS NOT NULL) = $4::BOOL)
-            GROUP BY a.id, u.username, u.bio, u.image, uf.follower_id
+            GROUP BY a.id, u.username, u.bio, u.image
             ORDER BY a.id DESC
             LIMIT $6
             OFFSET $5
@@ -62,7 +62,7 @@ pub async fn get_articles(req: Request<State>) -> Result {
             body: article.body,
             created_at: article.created_at,
             updated_at: article.updated_at,
-            tag_list: article.tag_list,
+            tag_list: article.tag_list.into_iter().filter_map(|tag| tag).collect(),
             favorited: article.favorited,
             favorites_count: article.favorites_count as usize,
             author: ProfileDto {
