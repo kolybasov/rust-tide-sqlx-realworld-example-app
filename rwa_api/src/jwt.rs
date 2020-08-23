@@ -2,7 +2,6 @@ use crate::db::User;
 use chrono::Utc;
 use jsonwebtoken::{decode, encode, errors, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct JWT {
@@ -20,7 +19,7 @@ pub struct Claims {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JWTData {
-    pub id: Uuid,
+    pub id: i32,
 }
 
 impl JWT {

@@ -8,15 +8,13 @@ pub struct AuthMiddleware {
     auth_required: bool,
 }
 
-impl Default for AuthMiddleware {
-    fn default() -> Self {
+impl AuthMiddleware {
+    pub fn required() -> Self {
         AuthMiddleware {
             auth_required: true,
         }
     }
-}
 
-impl AuthMiddleware {
     pub fn optional() -> Self {
         AuthMiddleware {
             auth_required: false,

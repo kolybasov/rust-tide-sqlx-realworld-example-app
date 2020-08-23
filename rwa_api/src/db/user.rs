@@ -1,10 +1,9 @@
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct User {
-    pub id: Uuid,
+    pub id: i32,
     pub username: String,
     pub email: String,
     pub password: String,
