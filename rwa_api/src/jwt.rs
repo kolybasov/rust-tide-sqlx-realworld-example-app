@@ -23,7 +23,7 @@ pub struct JWTData {
 }
 
 impl JWT {
-    pub fn new(secret: String) -> Self {
+    pub fn new(secret: &str) -> Self {
         let bytes = secret.as_bytes();
 
         JWT {

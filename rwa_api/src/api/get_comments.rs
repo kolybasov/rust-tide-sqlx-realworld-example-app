@@ -28,22 +28,23 @@ pub async fn get_comments(req: Request<State>) -> Result {
     .fetch_all(&state.db_pool)
     .await?;
 
+    let comments_dtos = comments
+        .iter()
+        .map(|comment| CommentDto {
+            id: comment.id,
+            body: &comment.body,
+            created_at: comment.created_at,
+            updated_at: comment.updated_at,
+            author: ProfileDto {
+                username: &comment.author_username,
+                bio: comment.author_bio.as_deref(),
+                image: comment.author_image.as_deref(),
+                following: comment.author_following,
+            },
+        })
+        .collect();
     let body = CommentsResponse {
-        comments: comments
-            .into_iter()
-            .map(|comment| CommentDto {
-                id: comment.id,
-                body: comment.body,
-                created_at: comment.created_at,
-                updated_at: comment.updated_at,
-                author: ProfileDto {
-                    username: comment.author_username,
-                    bio: comment.author_bio,
-                    image: comment.author_image,
-                    following: comment.author_following,
-                },
-            })
-            .collect(),
+        comments: comments_dtos,
     };
 
     Ok(Response::builder(StatusCode::Ok)

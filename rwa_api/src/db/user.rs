@@ -13,79 +13,52 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct UserUpdate {
-    pub email: Option<String>,
-    pub username: Option<String>,
-    pub password: Option<String>,
-    pub image: Option<String>,
-    pub bio: Option<String>,
-}
-
-impl UserUpdate {
-    pub fn update(self, user: User) -> anyhow::Result<Self> {
-        let password = if let Some(plain) = self.password {
-            bcrypt::hash(&plain, bcrypt::DEFAULT_COST)?
-        } else {
-            user.password
-        };
-
-        Ok(UserUpdate {
-            email: self.email.or(Some(user.email)),
-            username: self.username.or(Some(user.username)),
-            image: self.image.or(user.image),
-            bio: self.bio.or(user.bio),
-            password: Some(password),
-        })
-    }
-}
-
 #[derive(Serialize, Debug)]
-pub struct UserResponse {
-    pub user: UserDto,
+pub struct UserResponse<'a> {
+    pub user: UserDto<'a>,
 }
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct UserDto {
-    pub email: String,
-    pub token: String,
-    pub username: String,
-    pub bio: Option<String>,
-    pub image: Option<String>,
+pub struct UserDto<'a> {
+    pub email: &'a str,
+    pub token: &'a str,
+    pub username: &'a str,
+    pub bio: Option<&'a str>,
+    pub image: Option<&'a str>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ProfileDto {
-    pub username: String,
-    pub bio: Option<String>,
-    pub image: Option<String>,
+pub struct ProfileDto<'a> {
+    pub username: &'a str,
+    pub bio: Option<&'a str>,
+    pub image: Option<&'a str>,
     pub following: bool,
 }
 
-impl From<User> for ProfileDto {
-    fn from(user: User) -> Self {
+impl<'a> From<&'a User> for ProfileDto<'a> {
+    fn from(user: &'a User) -> Self {
         ProfileDto {
-            username: user.username,
-            bio: user.bio,
-            image: user.image,
+            username: &user.username,
+            bio: user.bio.as_deref(),
+            image: user.image.as_deref(),
             following: false,
         }
     }
 }
 
 #[derive(Serialize, Debug)]
-pub struct ProfileResponse {
-    pub profile: ProfileDto,
+pub struct ProfileResponse<'a> {
+    pub profile: ProfileDto<'a>,
 }
 
-impl UserDto {
-    pub fn with_token(user: User, token: String) -> Self {
+impl<'a> UserDto<'a> {
+    pub fn with_token(user: &'a User, token: &'a str) -> Self {
         UserDto {
-            email: user.email,
-            username: user.username,
-            bio: user.bio,
-            image: user.image,
+            email: &user.email,
+            username: &user.username,
+            bio: user.bio.as_deref(),
+            image: user.image.as_deref(),
             token,
         }
     }

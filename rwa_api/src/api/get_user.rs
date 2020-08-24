@@ -8,7 +8,7 @@ pub async fn get_user(req: Request<State>) -> Result {
 
     let token = state.jwt.sign(user)?;
     let body = UserResponse {
-        user: UserDto::with_token(user.clone(), token),
+        user: UserDto::with_token(user, &token),
     };
 
     let mut res = Response::new(StatusCode::Ok);

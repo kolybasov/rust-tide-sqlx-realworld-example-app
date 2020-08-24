@@ -34,7 +34,7 @@ pub async fn login(mut req: Request<State>) -> Result {
 
         let token = state.jwt.sign(&user)?;
         let body = UserResponse {
-            user: UserDto::with_token(user, token),
+            user: UserDto::with_token(&user, &token),
         };
         res.set_body(Body::from_json(&body)?);
 

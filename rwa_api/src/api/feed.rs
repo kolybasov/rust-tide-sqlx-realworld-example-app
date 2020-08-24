@@ -45,21 +45,21 @@ pub async fn feed(req: Request<State>) -> Result {
     .await?;
 
     let articles_dtos: Vec<ArticleDto> = articles
-        .into_iter()
+        .iter()
         .map(|article| ArticleDto {
-            slug: article.slug,
-            title: article.title,
-            description: article.description,
-            body: article.body,
+            slug: &article.slug,
+            title: &article.title,
+            description: &article.description,
+            body: &article.body,
             created_at: article.created_at,
             updated_at: article.updated_at,
-            tag_list: article.tag_list.into_iter().filter_map(|tag| tag).collect(),
+            tag_list: article.tag_list.iter().filter_map(|tag| tag.clone()).collect(),
             favorited: article.favorited,
             favorites_count: article.favorites_count as usize,
             author: ProfileDto {
-                username: article.author_username,
-                bio: article.author_bio,
-                image: article.author_image,
+                username: &article.author_username,
+                bio: article.author_bio.as_deref(),
+                image: article.author_image.as_deref(),
                 following: true,
             },
         })

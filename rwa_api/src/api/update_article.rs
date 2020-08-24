@@ -23,29 +23,30 @@ pub async fn update_article(mut req: Request<State>) -> Result {
     let slug: String = req.param("slug")?;
     let author_id = req.ext::<User>().unwrap().id;
 
-    let (new_slug, title) = if let Some(new_title) = payload.article.title {
-        (slugify(&new_title), Some(new_title))
+    let new_slug = if let Some(new_title) = &payload.article.title {
+        Some(slugify(new_title))
     } else {
-        (slug.clone(), None)
+        None
     };
 
-    query!(
+    let updated_article = query!(
         r#"
             UPDATE articles a
-            SET slug = $1,
+            SET slug = COALESCE($1, a.slug),
                 title = COALESCE($2, a.title),
                 description = COALESCE($3, a.description),
                 body = COALESCE($4, a.body)
             WHERE slug = $5 AND author_id = $6
+            RETURNING id
         "#,
         new_slug,
-        title,
+        payload.article.title,
         payload.article.description,
         payload.article.body,
         slug,
         author_id
     )
-    .execute(&state.db_pool)
+    .fetch_one(&state.db_pool)
     .await?;
 
     let article = query!(
@@ -65,10 +66,10 @@ pub async fn update_article(mut req: Request<State>) -> Result {
             INNER JOIN users u 
                 LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $2
                 ON u.id = a.author_id
-            WHERE a.slug = $1
+            WHERE a.id = $1
             GROUP BY a.id, u.username, u.image, u.bio
         "#,
-        new_slug,
+        updated_article.id,
         author_id,
     )
     .fetch_one(&state.db_pool)
@@ -76,19 +77,19 @@ pub async fn update_article(mut req: Request<State>) -> Result {
 
     let body = ArticleResponse {
         article: ArticleDto {
-            slug: article.slug,
-            title: article.title,
-            description: article.description,
-            body: article.body,
+            slug: &article.slug,
+            title: &article.title,
+            description: &article.description,
+            body: &article.body,
             created_at: article.created_at,
             updated_at: article.updated_at,
             tag_list: article.tag_list.into_iter().filter_map(|tag| tag).collect(),
             favorited: article.favorited,
             favorites_count: article.favorites_count as usize,
             author: ProfileDto {
-                username: article.author_username,
-                bio: article.author_bio,
-                image: article.author_image,
+                username: &article.author_username,
+                bio: article.author_bio.as_deref(),
+                image: article.author_image.as_deref(),
                 following: article.author_following,
             },
         },

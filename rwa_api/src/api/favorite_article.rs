@@ -42,19 +42,19 @@ pub async fn favorite_article(req: Request<State>) -> Result {
 
     let body = ArticleResponse {
         article: ArticleDto {
-            slug: article.slug,
-            title: article.title,
-            description: article.description,
-            body: article.body,
+            slug: &article.slug,
+            title: &article.title,
+            description: &article.description,
+            body: &article.body,
             created_at: article.created_at,
             updated_at: article.updated_at,
             tag_list: article.tag_list.into_iter().filter_map(|tag| tag).collect(),
             favorited: true,
             favorites_count: article.favorites_count as usize + 1,
             author: ProfileDto {
-                username: article.author_username,
-                bio: article.author_bio,
-                image: article.author_image,
+                username: &article.author_username,
+                bio: article.author_bio.as_deref(),
+                image: article.author_image.as_deref(),
                 following: article.author_following,
             },
         },

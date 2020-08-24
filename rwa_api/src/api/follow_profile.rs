@@ -24,7 +24,7 @@ pub async fn follow_profile(req: Request<State>) -> Result {
     .execute(&state.db_pool)
     .await?;
 
-    let mut profile = ProfileDto::from(user);
+    let mut profile = ProfileDto::from(&user);
     profile.following = true;
 
     let body = ProfileResponse { profile };

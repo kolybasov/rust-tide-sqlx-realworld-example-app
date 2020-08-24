@@ -103,19 +103,19 @@ pub async fn create_article(mut req: Request<State>) -> Result {
 
     let body = ArticleResponse {
         article: ArticleDto {
-            slug: article.slug,
-            title: article.title,
-            description: article.description,
-            body: article.body,
+            slug: &article.slug,
+            title: &article.title,
+            description: &article.description,
+            body: &article.body,
             created_at: article.created_at,
             updated_at: article.updated_at,
             favorited: false,
             favorites_count: 0,
             tag_list: tags_list,
             author: ProfileDto {
-                username: author.username.clone(),
-                bio: author.bio.clone(),
-                image: author.image.clone(),
+                username: &author.username,
+                bio: author.bio.as_deref(),
+                image: author.image.as_deref(),
                 following: false,
             },
         },

@@ -37,13 +37,13 @@ pub async fn create_comment(mut req: Request<State>) -> Result {
     let body = CommentResponse {
         comment: CommentDto {
             id: comment.id,
-            body: comment.body,
+            body: &comment.body,
             created_at: comment.created_at,
             updated_at: comment.updated_at,
             author: ProfileDto {
-                username: author.username.clone(),
-                bio: author.bio.clone(),
-                image: author.image.clone(),
+                username: &author.username,
+                bio: author.bio.as_deref(),
+                image: author.image.as_deref(),
                 following: false,
             },
         },

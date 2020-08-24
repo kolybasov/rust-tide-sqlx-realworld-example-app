@@ -8,9 +8,11 @@ use config::Config;
 use jwt::JWT;
 use server::{Server, State};
 use sqlx::postgres::PgPoolOptions;
+use listenfd::ListenFd;
 
 #[async_std::main]
 async fn main() -> Result<(), anyhow::Error> {
+    let mut listenfd = ListenFd::from_env();
     let config = Config::load()?;
 
     let db_pool = PgPoolOptions::new()
@@ -18,7 +20,7 @@ async fn main() -> Result<(), anyhow::Error> {
         .connect(&config.database_url)
         .await?;
 
-    let jwt = JWT::new(config.jwt_secret.clone());
+    let jwt = JWT::new(&config.jwt_secret);
 
     let url = format!("{}:{}", config.host, config.port);
     let app = Server::new(State {
@@ -26,7 +28,12 @@ async fn main() -> Result<(), anyhow::Error> {
         config,
         jwt,
     });
-    app.listen(url).await?;
+
+    if let Some(listener) = listenfd.take_tcp_listener(0)? {
+        app.listen(listener).await
+    } else {
+        app.listen(url).await
+    }?;
 
     Ok(())
 }

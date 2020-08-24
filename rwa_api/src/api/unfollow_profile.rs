@@ -25,7 +25,7 @@ pub async fn unfollow_profile(req: Request<State>) -> Result {
     .await?;
 
     let body = ProfileResponse {
-        profile: user.into(),
+        profile: (&user).into(),
     };
     let mut res = Response::new(StatusCode::Ok);
     res.set_body(Body::from_json(&body)?);
