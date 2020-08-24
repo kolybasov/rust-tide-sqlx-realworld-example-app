@@ -2,7 +2,7 @@ use crate::db::User;
 use crate::State;
 use sqlx::query_as;
 use tide::http::headers;
-use tide::{Middleware, Next, Request, Response, Result, StatusCode};
+use tide::{Error, Middleware, Next, Request, Result, StatusCode};
 
 pub struct AuthMiddleware {
     auth_required: bool,
@@ -32,7 +32,8 @@ impl Middleware<State> for AuthMiddleware {
                 .as_str()
                 .split_whitespace()
                 .last()
-                .unwrap();
+                .ok_or(Error::from_str(StatusCode::Unauthorized, "No auth token"))?;
+
             if let Ok(claims) = state.jwt.verify(auth_header) {
                 let user = query_as!(User, "SELECT * FROM users WHERE id = $1", claims.data.id)
                     .fetch_one(&state.db_pool)
@@ -40,16 +41,14 @@ impl Middleware<State> for AuthMiddleware {
 
                 req.set_ext(user);
 
-                let res = next.run(req).await;
-                return Ok(res);
+                return Ok(next.run(req).await);
             }
         }
 
         if self.auth_required {
-            Ok(Response::new(StatusCode::Unauthorized))
+            Err(Error::from_str(StatusCode::Unauthorized, "Unauthorized"))
         } else {
-            let res = next.run(req).await;
-            Ok(res)
+            Ok(next.run(req).await)
         }
     }
 }

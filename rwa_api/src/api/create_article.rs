@@ -3,7 +3,7 @@ use crate::State;
 use serde::Deserialize;
 use slug::slugify;
 use sqlx::{query, query_as, Acquire};
-use tide::{Body, Request, Response, Result, StatusCode};
+use tide::{Body, Error, Request, Response, Result, StatusCode};
 
 #[derive(Debug, Deserialize)]
 struct CreateArticlePayload {
@@ -22,7 +22,10 @@ struct CreateArticlePayloadArticle {
 pub async fn create_article(mut req: Request<State>) -> Result {
     let payload: CreateArticlePayload = req.body_json().await?;
     let state = req.state();
-    let author = req.ext::<User>().unwrap();
+    let author = req.ext::<User>().ok_or(Error::from_str(
+        StatusCode::Unauthorized,
+        "No user provided",
+    ))?;
 
     let mut transaction = state.db_pool.begin().await?;
 
