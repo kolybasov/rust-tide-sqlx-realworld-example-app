@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 pub struct Comment {
     pub id: i32,
     pub body: String,
-    pub author_id: i64,
-    pub article_id: i64,
+    pub author_id: i32,
+    pub article_id: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -20,6 +20,11 @@ pub struct CommentDto {
     pub updated_at: DateTime<Utc>,
     pub body: String,
     pub author: ProfileDto,
+}
+
+#[derive(Serialize, Debug)]
+pub struct CommentResponse {
+    pub comment: CommentDto,
 }
 
 #[derive(Serialize, Debug)]

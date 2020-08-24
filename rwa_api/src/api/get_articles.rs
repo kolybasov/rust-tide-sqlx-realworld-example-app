@@ -8,7 +8,7 @@ use tide::{Body, Request, Response, Result, StatusCode};
 pub struct GetArticlesParams {
     tag: Option<String>,
     author: Option<String>,
-    favorited: Option<bool>,
+    favorited: Option<String>,
     limit: Option<i64>,
     offset: Option<i64>,
 }
@@ -30,14 +30,16 @@ pub async fn get_articles(req: Request<State>) -> Result {
                    BOOL_OR(uf.follower_id IS NOT NULL) "author_following!"
             FROM articles a
             LEFT JOIN articles_tags at ON at.article_id = a.id
-            LEFT JOIN articles_favorites af ON af.article_id = a.id
+            LEFT JOIN articles_favorites af 
+                INNER JOIN users u2 ON u2.id = af.user_id
+                ON af.article_id = a.id
             LEFT JOIN articles_favorites af2 ON af2.article_id = a.id AND af2.user_id = $1
             INNER JOIN users u 
                 LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $1
                 ON u.id = a.author_id
             WHERE ($2::VARCHAR IS NULL OR at.tag_id = $2::VARCHAR) AND
                   ($3::VARCHAR IS NULL OR u.username = $3::VARCHAR) AND
-                  ($4::BOOL IS NULL OR (af2.user_id IS NOT NULL) = $4::BOOL)
+                  ($4::VARCHAR IS NULL OR u2.username = $4::VARCHAR)
             GROUP BY a.id, u.username, u.bio, u.image
             ORDER BY a.id DESC
             LIMIT $6

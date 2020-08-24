@@ -23,7 +23,7 @@ pub async fn get_article(req: Request<State>) -> Result {
             LEFT JOIN articles_favorites af ON af.article_id = a.id
             LEFT JOIN articles_favorites af2 ON af2.article_id = a.id AND af2.user_id = $2
             INNER JOIN users u 
-                LEFT JOIN users_followers uf ON uf.leader_id = u.id
+                LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $2
                 ON u.id = a.author_id
             WHERE a.slug = $1
             GROUP BY a.id, u.username, u.image, u.bio
