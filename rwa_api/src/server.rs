@@ -5,7 +5,7 @@ use crate::api::{
     AuthMiddleware,
 };
 use sqlx::{Pool, Postgres};
-use tide::security::CorsMiddleware;
+use tide::{http::headers::HeaderValue, security::CorsMiddleware};
 
 #[derive(Clone)]
 pub struct State {
@@ -23,7 +23,7 @@ impl Server {
         let mut app = tide::with_state(state);
 
         /* Middlewares */
-        app.with(CorsMiddleware::new());
+        app.with(CorsMiddleware::new().allow_methods("*".parse::<HeaderValue>().unwrap()));
 
         /* Routes */
         // Users
