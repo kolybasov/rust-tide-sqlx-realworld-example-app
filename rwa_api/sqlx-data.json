@@ -1,5 +1,117 @@
 {
   "db": "PostgreSQL",
+  "00f9e69d007449a1fddbca9d8a4af2ad6e6f328af7180b5654a9c2747f07278b": {
+    "query": "DELETE FROM articles WHERE slug = $1 AND author_id = $2",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "0d0574de2cf858931578ab5957eba93cbe75a14ea8249328029d8dc8c9be4cc3": {
+    "query": "\n            SELECT a.*, \n                   ARRAY_AGG(at.tag_id) \"tag_list!: Vec<Option<String>>\",\n                   COUNT(DISTINCT af.article_id) \"favorites_count!\",\n                   u.username \"author_username!\",\n                   u.image \"author_image\",\n                   u.bio \"author_bio\",\n                   BOOL_OR(uf.follower_id IS NOT NULL) \"author_following!\"\n            FROM articles a\n            LEFT JOIN articles_tags at ON at.article_id = a.id\n            LEFT JOIN articles_favorites af ON af.article_id = a.id\n            INNER JOIN users u \n                LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $2\n                ON u.id = a.author_id\n            WHERE a.slug = $1\n            GROUP BY a.id, u.username, u.image, u.bio\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "description",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "body",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "author_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "tag_list!: Vec<Option<String>>",
+          "type_info": "VarcharArray"
+        },
+        {
+          "ordinal": 9,
+          "name": "favorites_count!",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "author_username!",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 11,
+          "name": "author_image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 12,
+          "name": "author_bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 13,
+          "name": "author_following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        null,
+        null,
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
   "17c8c705656859ff027201a09cbbd15ddeffd3d7128e47db58311c095752b56e": {
     "query": "DELETE FROM users_followers WHERE follower_id = $1 AND leader_id = $2",
     "describe": {
@@ -11,6 +123,240 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "28bb6d541d35a38b55a81c746e108c9b24d9281c18a57c7d62c135d41d1e702a": {
+    "query": "\n            SELECT a.*, \n                   ARRAY_AGG(at.tag_id) \"tag_list!: Vec<Option<String>>\",\n                   COUNT(DISTINCT af.article_id) \"favorites_count!\",\n                   BOOL_OR(af2.user_id IS NOT NULL) \"favorited!\",\n                   u.username \"author_username!\",\n                   u.image \"author_image\",\n                   u.bio \"author_bio\",\n                   BOOL_OR(uf.follower_id IS NOT NULL) \"author_following!\"\n            FROM articles a\n            LEFT JOIN articles_tags at ON at.article_id = a.id\n            LEFT JOIN articles_favorites af ON af.article_id = a.id\n            LEFT JOIN articles_favorites af2 ON af2.article_id = a.id AND af2.user_id = $2\n            INNER JOIN users u \n                LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $2\n                ON u.id = a.author_id\n            WHERE a.id = $1\n            GROUP BY a.id, u.username, u.image, u.bio\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "description",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "body",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "author_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "tag_list!: Vec<Option<String>>",
+          "type_info": "VarcharArray"
+        },
+        {
+          "ordinal": 9,
+          "name": "favorites_count!",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "favorited!",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 11,
+          "name": "author_username!",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 12,
+          "name": "author_image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 13,
+          "name": "author_bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 14,
+          "name": "author_following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        null,
+        null,
+        null,
+        false,
+        true,
+        true,
+        null
+      ]
+    }
+  },
+  "2a8f53ceeb2d3eb7772110015788b7474fcaf21e9c5c824af822c1b107aa695c": {
+    "query": "SELECT id FROM articles WHERE slug = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "2b9f3bc14613556a708fbec26242fac039e990d3e35296ea59224b36b8a64c8d": {
+    "query": "\n            SELECT a.*, \n                   ARRAY_AGG(at.tag_id) \"tag_list!: Vec<Option<String>>\",\n                   COUNT(DISTINCT af.article_id) \"favorites_count!\",\n                   BOOL_OR(af2.user_id IS NOT NULL) \"favorited!\",\n                   u.username \"author_username\",\n                   u.bio \"author_bio\",\n                   u.image \"author_image\",\n                   BOOL_OR(uf.follower_id IS NOT NULL) \"author_following!\"\n            FROM articles a\n            LEFT JOIN articles_tags at ON at.article_id = a.id\n            LEFT JOIN articles_favorites af \n                INNER JOIN users u2 ON u2.id = af.user_id\n                ON af.article_id = a.id\n            LEFT JOIN articles_favorites af2 ON af2.article_id = a.id AND af2.user_id = $1\n            INNER JOIN users u \n                LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $1\n                ON u.id = a.author_id\n            WHERE ($2::VARCHAR IS NULL OR at.tag_id = $2::VARCHAR) AND\n                  ($3::VARCHAR IS NULL OR u.username = $3::VARCHAR) AND\n                  ($4::VARCHAR IS NULL OR u2.username = $4::VARCHAR)\n            GROUP BY a.id, u.username, u.bio, u.image\n            ORDER BY a.id DESC\n            LIMIT $6\n            OFFSET $5\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "description",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "body",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "author_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "tag_list!: Vec<Option<String>>",
+          "type_info": "VarcharArray"
+        },
+        {
+          "ordinal": 9,
+          "name": "favorites_count!",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "favorited!",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 11,
+          "name": "author_username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 12,
+          "name": "author_bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 13,
+          "name": "author_image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 14,
+          "name": "author_following!",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Int8",
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        null,
+        null,
+        null,
+        false,
+        true,
+        true,
+        null
+      ]
     }
   },
   "2cbe7b57e7c4d4aa6e31ea6d6428a33cc6c3ad70ca17ca561fd7815345166357": {
@@ -52,75 +398,8 @@
       ]
     }
   },
-  "511019f9528f584738d435c898c7086865e2bf80975817332042b1a0c0150aae": {
-    "query": "\n            UPDATE users \n            SET email = $2,\n                username = $3,\n                password = $4,\n                image = $5,\n                bio = $6\n            WHERE id = $1\n            RETURNING *\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 1,
-          "name": "username",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "email",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "password",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 4,
-          "name": "bio",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 5,
-          "name": "image",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 6,
-          "name": "created_at",
-          "type_info": "Timestamptz"
-        },
-        {
-          "ordinal": 7,
-          "name": "updated_at",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Varchar",
-          "Text"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
-    }
-  },
-  "733561c5b89d8b31720fef15c1e0b456a1905bd8717d4886cb0bc9b74f876a37": {
-    "query": "\n            SELECT a.*, \n                   ARRAY_AGG(at.tag_id) \"tag_list!\",\n                   COUNT(DISTINCT af.article_id) \"favorites_count!\",\n                   af2.user_id IS NOT NULL \"favorited!\"\n            FROM articles a\n            LEFT JOIN articles_tags at ON at.article_id = a.id\n            LEFT JOIN articles_favorites af ON af.article_id = a.id\n            LEFT JOIN articles_favorites af2 ON af2.article_id = a.id AND af2.user_id = $2\n            WHERE a.slug = $1\n            GROUP BY a.id, af2.user_id\n        ",
+  "34a53069df2d7d30be01d990d692b94989eeb921804ee75620a349a4dc7c1498": {
+    "query": "\n            SELECT a.*, \n                   ARRAY_AGG(at.tag_id) \"tag_list!: Vec<Option<String>>\",\n                   COUNT(DISTINCT af.article_id) \"favorites_count!\",\n                   BOOL_OR(af2.user_id IS NOT NULL) \"favorited!\",\n                   u.username \"author_username!\",\n                   u.image \"author_image\",\n                   u.bio \"author_bio\",\n                   BOOL_OR(uf.follower_id IS NOT NULL) \"author_following!\"\n            FROM articles a\n            LEFT JOIN articles_tags at ON at.article_id = a.id\n            LEFT JOIN articles_favorites af ON af.article_id = a.id\n            LEFT JOIN articles_favorites af2 ON af2.article_id = a.id AND af2.user_id = $2\n            INNER JOIN users u \n                LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $2\n                ON u.id = a.author_id\n            WHERE a.slug = $1\n            GROUP BY a.id, u.username, u.image, u.bio\n        ",
     "describe": {
       "columns": [
         {
@@ -165,7 +444,7 @@
         },
         {
           "ordinal": 8,
-          "name": "tag_list!",
+          "name": "tag_list!: Vec<Option<String>>",
           "type_info": "VarcharArray"
         },
         {
@@ -176,6 +455,26 @@
         {
           "ordinal": 10,
           "name": "favorited!",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 11,
+          "name": "author_username!",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 12,
+          "name": "author_image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 13,
+          "name": "author_bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 14,
+          "name": "author_following!",
           "type_info": "Bool"
         }
       ],
@@ -196,12 +495,46 @@
         false,
         null,
         null,
+        null,
+        false,
+        true,
+        true,
         null
       ]
     }
   },
-  "82b10b626e69dae98087c9978af57b68c14526f063028f36393a5afb49e35194": {
-    "query": "\n            SELECT a.*, \n                   ARRAY_AGG(at.tag_id) \"tag_list!\",\n                   COUNT(DISTINCT af.article_id) \"favorites_count!\",\n                   BOOL_OR(af2.user_id IS NOT NULL) \"favorited!\",\n                   u.username \"author_username\",\n                   u.bio \"author_bio\",\n                   u.image \"author_image\",\n                   (uf.follower_id IS NOT NULL) \"author_following!\"\n            FROM articles a\n            LEFT JOIN articles_tags at ON at.article_id = a.id\n            LEFT JOIN articles_favorites af ON af.article_id = a.id\n            LEFT JOIN articles_favorites af2 ON af2.article_id = a.id AND af2.user_id = $1\n            INNER JOIN users u \n                LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $1\n                ON u.id = a.author_id\n            WHERE ($2::VARCHAR IS NULL OR at.tag_id = $2::VARCHAR) AND\n                  ($3::VARCHAR IS NULL OR u.username = $3::VARCHAR) AND\n                  ($4::BOOL IS NULL OR (af2.user_id IS NOT NULL) = $4::BOOL)\n            GROUP BY a.id, u.username, u.bio, u.image, uf.follower_id\n            ORDER BY a.id DESC\n            LIMIT $6\n            OFFSET $5\n        ",
+  "52958684fa52b7a4753cd4356482dc6c655102a501d8aa48e03b1fb3dbbad02d": {
+    "query": "SELECT * FROM tags",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "tag",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 2,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": []
+      },
+      "nullable": [
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "69ef716e216f73238034a1d420602c69cce215f0f0aaef8e71475f1b5f55afab": {
+    "query": "\n            SELECT c.*,\n                   u.username \"author_username!\",\n                   u.bio \"author_bio\",\n                   u.image \"author_image\",\n                   (uf.follower_id IS NOT NULL) \"author_following!\"\n            FROM comments c\n            INNER JOIN articles a ON a.id = c.article_id\n            INNER JOIN users u \n                LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $2\n                ON u.id = c.author_id\n            WHERE a.slug = $1\n        ",
     "describe": {
       "columns": [
         {
@@ -211,83 +544,54 @@
         },
         {
           "ordinal": 1,
-          "name": "slug",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 2,
-          "name": "title",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
           "name": "body",
           "type_info": "Text"
         },
         {
-          "ordinal": 5,
+          "ordinal": 2,
           "name": "author_id",
           "type_info": "Int4"
         },
         {
-          "ordinal": 6,
+          "ordinal": 3,
+          "name": "article_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
           "name": "created_at",
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 7,
+          "ordinal": 5,
           "name": "updated_at",
           "type_info": "Timestamptz"
         },
         {
-          "ordinal": 8,
-          "name": "tag_list!",
-          "type_info": "VarcharArray"
-        },
-        {
-          "ordinal": 9,
-          "name": "favorites_count!",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 10,
-          "name": "favorited!",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 11,
-          "name": "author_username",
+          "ordinal": 6,
+          "name": "author_username!",
           "type_info": "Varchar"
         },
         {
-          "ordinal": 12,
+          "ordinal": 7,
           "name": "author_bio",
           "type_info": "Text"
         },
         {
-          "ordinal": 13,
+          "ordinal": 8,
           "name": "author_image",
           "type_info": "Varchar"
         },
         {
-          "ordinal": 14,
+          "ordinal": 9,
           "name": "author_following!",
           "type_info": "Bool"
         }
       ],
       "parameters": {
         "Left": [
-          "Int4",
-          "Varchar",
-          "Varchar",
-          "Bool",
-          "Int8",
-          "Int8"
+          "Text",
+          "Int4"
         ]
       },
       "nullable": [
@@ -298,14 +602,99 @@
         false,
         false,
         false,
-        false,
-        null,
-        null,
-        null,
-        false,
         true,
         true,
         null
+      ]
+    }
+  },
+  "6a1ab903dab0d2072700bad96bb8342ac40db9d39649dc1f3dcb982a5133afad": {
+    "query": "INSERT INTO comments (body, article_id, author_id) VALUES ($1, $2, $3) RETURNING *",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "body",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "author_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 3,
+          "name": "article_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 4,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 5,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int4",
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "8065a911e0df067b510c1013a4a43a0b8c90429ee0e9bd1d0795b52f340bbc5d": {
+    "query": "DELETE FROM comments WHERE id = $1 AND author_id = $2",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "8374ccdf1a16c369cb304783fe7508de6fe91f8003bde4fefcf0b89dc7e67294": {
+    "query": "\n            UPDATE articles a\n            SET slug = COALESCE($1, a.slug),\n                title = COALESCE($2, a.title),\n                description = COALESCE($3, a.description),\n                body = COALESCE($4, a.body)\n            WHERE slug = $5 AND author_id = $6\n            RETURNING id\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Text",
+          "Text",
+          "Text",
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false
       ]
     }
   },
@@ -450,6 +839,186 @@
       ]
     }
   },
+  "9c2550231f72858ad0027b8abac8545b820783f8659d9fd74ff2cec4a7d57a61": {
+    "query": "\n            UPDATE users u\n            SET email = COALESCE($2, u.email),\n                username = COALESCE($3, u.username),\n                password = COALESCE($4, u.password),\n                image = $5,\n                bio = $6\n            WHERE id = $1\n            RETURNING *\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "email",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "password",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 4,
+          "name": "bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "image",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    }
+  },
+  "a3a51aab0a1e0cec1b6ebb4f88450c1093f6bcbf5f5ddec81e6901993d83697f": {
+    "query": "INSERT INTO articles_favorites (article_id, user_id) VALUES ($1, $2)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "a5d874a312341675ec694ce6c01b0d627ad9bbf8637b53a75c85d4696fe24e94": {
+    "query": "\n            SELECT a.*, \n                   ARRAY_AGG(at.tag_id) \"tag_list!: Vec<Option<String>>\",\n                   COUNT(DISTINCT af.article_id) \"favorites_count!\",\n                   BOOL_OR(af2.user_id IS NOT NULL) \"favorited!\",\n                   u.username \"author_username\",\n                   u.bio \"author_bio\",\n                   u.image \"author_image\"\n            FROM articles a\n            LEFT JOIN articles_tags at ON at.article_id = a.id\n            LEFT JOIN articles_favorites af ON af.article_id = a.id\n            LEFT JOIN articles_favorites af2 ON af2.article_id = a.id AND af2.user_id = $1\n            INNER JOIN users u \n                INNER JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $1\n                ON u.id = a.author_id\n            WHERE uf.follower_id = $1\n            GROUP BY a.id, u.username, u.bio, u.image\n            ORDER BY a.id DESC\n            LIMIT $2\n            OFFSET $3\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "slug",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 2,
+          "name": "title",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 3,
+          "name": "description",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "body",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 5,
+          "name": "author_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 6,
+          "name": "created_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 7,
+          "name": "updated_at",
+          "type_info": "Timestamptz"
+        },
+        {
+          "ordinal": 8,
+          "name": "tag_list!: Vec<Option<String>>",
+          "type_info": "VarcharArray"
+        },
+        {
+          "ordinal": 9,
+          "name": "favorites_count!",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 10,
+          "name": "favorited!",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 11,
+          "name": "author_username",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 12,
+          "name": "author_bio",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 13,
+          "name": "author_image",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8",
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        null,
+        null,
+        null,
+        false,
+        true,
+        true
+      ]
+    }
+  },
   "c1d8d3ac6fd80ddb4c4241bc030894485518d55d5fb1ce6ad54a0511bc932832": {
     "query": "\n            INSERT INTO \"users\" (\"email\", \"password\", \"username\") \n            VALUES ($1, $2, $3) \n            RETURNING *\n        ",
     "describe": {
@@ -576,6 +1145,19 @@
       ]
     }
   },
+  "eee2b344d8af92230fa1e1fdb0a73b293d2a2c45a623113e89ca5631d0f51a27": {
+    "query": "DELETE FROM articles_favorites WHERE article_id = $1 AND user_id = $2",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "f3f58600e971f1be6cbe206bba24f77769f54c6230e28f5b3dc719b869d9cb3f": {
     "query": "SELECT * FROM users WHERE email = $1",
     "describe": {
@@ -635,45 +1217,6 @@
         true,
         false,
         false
-      ]
-    }
-  },
-  "fdd279749695170c116cbb0feb32b24ce0048afec0be369f896202d9addebe5f": {
-    "query": "\n            SELECT username, bio, image, (uf.leader_id IS NOT NULL) \"following!\"  FROM users u\n            LEFT JOIN users_followers uf ON uf.leader_id = u.id AND uf.follower_id = $2\n            WHERE u.id = $1\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "username",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "bio",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "image",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 3,
-          "name": "following!",
-          "type_info": "Bool"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Int4",
-          "Int4"
-        ]
-      },
-      "nullable": [
-        false,
-        true,
-        true,
-        null
       ]
     }
   }
