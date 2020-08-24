@@ -64,7 +64,7 @@ pub async fn get_articles(req: Request<State>) -> Result {
             body: &article.body,
             created_at: article.created_at,
             updated_at: article.updated_at,
-            tag_list: article.tag_list.iter().filter_map(|tag| tag.clone()).collect(),
+            tag_list: article.tag_list.iter().filter_map(|tag| tag.as_deref()).collect(),
             favorited: article.favorited,
             favorites_count: article.favorites_count as usize,
             author: ProfileDto {

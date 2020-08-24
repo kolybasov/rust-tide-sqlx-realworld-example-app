@@ -23,7 +23,7 @@ pub struct ArticleDto<'a> {
     pub body: &'a str,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub tag_list: Vec<String>,
+    pub tag_list: Vec<&'a str>,
     pub favorited: bool,
     pub favorites_count: usize,
     pub author: ProfileDto<'a>,

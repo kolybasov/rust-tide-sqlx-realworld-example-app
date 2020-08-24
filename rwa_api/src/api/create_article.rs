@@ -111,7 +111,7 @@ pub async fn create_article(mut req: Request<State>) -> Result {
             updated_at: article.updated_at,
             favorited: false,
             favorites_count: 0,
-            tag_list: tags_list,
+            tag_list: tags_list.iter().map(std::ops::Deref::deref).collect(),
             author: ProfileDto {
                 username: &author.username,
                 bio: author.bio.as_deref(),
