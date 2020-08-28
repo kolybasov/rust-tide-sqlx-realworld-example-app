@@ -207,7 +207,7 @@ struct ArticleRow {
     author_bio: Option<String>,
     author_following: bool,
     // favorites
-    favorited: bool,
+    favorited: Option<bool>,
     favorites_count: i64,
     // unneeded fields
     #[allow(dead_code)]
@@ -226,7 +226,7 @@ impl From<ArticleRow> for ArticleDto {
             created_at: article.created_at,
             updated_at: article.updated_at,
             tag_list: article.tag_list,
-            favorited: article.favorited,
+            favorited: article.favorited.unwrap_or(false),
             favorites_count: article.favorites_count as usize,
             author: ProfileDto {
                 username: article.author_username,

@@ -1,7 +1,7 @@
 SELECT a.*,
        ARRAY_REMOVE(ARRAY_AGG(at.tag_id), NULL) "tag_list!",
        COUNT(DISTINCT af.article_id) "favorites_count!",
-       BOOL_OR(af.user_id = $1) "favorited!",
+       BOOL_OR(af.user_id = $1) "favorited",
        u.username "author_username",
        u.bio "author_bio",
        u.image "author_image",
