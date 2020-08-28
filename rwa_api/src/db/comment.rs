@@ -14,20 +14,32 @@ pub struct Comment {
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct CommentDto<'a> {
+pub struct CommentDto {
     pub id: i32,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub body: &'a str,
-    pub author: ProfileDto<'a>,
+    pub body: String,
+    pub author: ProfileDto,
 }
 
 #[derive(Serialize, Debug)]
-pub struct CommentResponse<'a> {
-    pub comment: CommentDto<'a>,
+pub struct CommentResponse {
+    pub comment: CommentDto,
+}
+
+impl From<CommentDto> for CommentResponse {
+    fn from(comment: CommentDto) -> Self {
+        CommentResponse { comment }
+    }
 }
 
 #[derive(Serialize, Debug)]
-pub struct CommentsResponse<'a> {
-    pub comments: Vec<CommentDto<'a>>,
+pub struct CommentsResponse {
+    pub comments: Vec<CommentDto>,
+}
+
+impl From<Vec<CommentDto>> for CommentsResponse {
+    fn from(comments: Vec<CommentDto>) -> Self {
+        CommentsResponse { comments }
+    }
 }

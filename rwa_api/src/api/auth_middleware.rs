@@ -1,6 +1,5 @@
-use crate::db::User;
+use crate::services::UserService;
 use crate::State;
-use sqlx::query_as;
 use tide::http::headers;
 use tide::{Error, Middleware, Next, Request, Result, StatusCode};
 
@@ -35,8 +34,8 @@ impl Middleware<State> for AuthMiddleware {
                 .ok_or(Error::from_str(StatusCode::Unauthorized, "No auth token"))?;
 
             if let Ok(claims) = state.jwt.verify(auth_header) {
-                let user = query_as!(User, "SELECT * FROM users WHERE id = $1", claims.data.id)
-                    .fetch_one(&state.db_pool)
+                let user = UserService::new(&state.db_pool)
+                    .get_user_by_id(claims.data.id)
                     .await?;
 
                 req.set_ext(user);

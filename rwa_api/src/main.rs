@@ -3,6 +3,7 @@ pub(crate) mod config;
 pub(crate) mod db;
 pub(crate) mod jwt;
 pub(crate) mod server;
+pub(crate) mod services;
 
 use config::Config;
 use jwt::JWT;

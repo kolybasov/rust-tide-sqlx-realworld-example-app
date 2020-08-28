@@ -16,27 +16,42 @@ pub struct Article {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct ArticleDto<'a> {
-    pub slug: &'a str,
-    pub title: &'a str,
-    pub description: &'a str,
-    pub body: &'a str,
+pub struct ArticleDto {
+    pub slug: String,
+    pub title: String,
+    pub description: String,
+    pub body: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub tag_list: Vec<&'a str>,
+    pub tag_list: Vec<String>,
     pub favorited: bool,
     pub favorites_count: usize,
-    pub author: ProfileDto<'a>,
+    pub author: ProfileDto,
 }
 
 #[derive(Serialize, Debug)]
-pub struct ArticleResponse<'a> {
-    pub article: ArticleDto<'a>,
+pub struct ArticleResponse {
+    pub article: ArticleDto,
+}
+
+impl From<ArticleDto> for ArticleResponse {
+    fn from(article: ArticleDto) -> Self {
+        ArticleResponse { article }
+    }
 }
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct ArticlesResponse<'a> {
-    pub articles: Vec<ArticleDto<'a>>,
+pub struct ArticlesResponse {
+    pub articles: Vec<ArticleDto>,
     pub articles_count: usize,
+}
+
+impl From<Vec<ArticleDto>> for ArticlesResponse {
+    fn from(articles: Vec<ArticleDto>) -> Self {
+        ArticlesResponse {
+            articles_count: articles.len(),
+            articles,
+        }
+    }
 }

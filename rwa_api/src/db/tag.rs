@@ -12,3 +12,9 @@ pub struct Tag {
 pub struct TagsResponse {
     pub tags: Vec<String>,
 }
+
+impl From<Vec<String>> for TagsResponse {
+    fn from(tags: Vec<String>) -> Self {
+        TagsResponse { tags }
+    }
+}

@@ -14,52 +14,64 @@ pub struct User {
 }
 
 #[derive(Serialize, Debug)]
-pub struct UserResponse<'a> {
-    pub user: UserDto<'a>,
+pub struct UserResponse {
+    pub user: UserDto,
+}
+
+impl From<UserDto> for UserResponse {
+    fn from(user: UserDto) -> Self {
+        UserResponse { user }
+    }
 }
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-pub struct UserDto<'a> {
-    pub email: &'a str,
-    pub token: &'a str,
-    pub username: &'a str,
-    pub bio: Option<&'a str>,
-    pub image: Option<&'a str>,
+pub struct UserDto {
+    pub email: String,
+    pub token: String,
+    pub username: String,
+    pub bio: Option<String>,
+    pub image: Option<String>,
+}
+
+impl UserDto {
+    pub fn with_token(user: User, token: String) -> Self {
+        UserDto {
+            email: user.email,
+            username: user.username,
+            bio: user.bio,
+            image: user.image,
+            token,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ProfileDto<'a> {
-    pub username: &'a str,
-    pub bio: Option<&'a str>,
-    pub image: Option<&'a str>,
+pub struct ProfileDto {
+    pub username: String,
+    pub bio: Option<String>,
+    pub image: Option<String>,
     pub following: bool,
 }
 
-impl<'a> From<&'a User> for ProfileDto<'a> {
-    fn from(user: &'a User) -> Self {
+impl From<User> for ProfileDto {
+    fn from(user: User) -> Self {
         ProfileDto {
-            username: &user.username,
-            bio: user.bio.as_deref(),
-            image: user.image.as_deref(),
+            username: user.username,
+            bio: user.bio,
+            image: user.image,
             following: false,
         }
     }
 }
 
 #[derive(Serialize, Debug)]
-pub struct ProfileResponse<'a> {
-    pub profile: ProfileDto<'a>,
+pub struct ProfileResponse {
+    pub profile: ProfileDto,
 }
 
-impl<'a> UserDto<'a> {
-    pub fn with_token(user: &'a User, token: &'a str) -> Self {
-        UserDto {
-            email: &user.email,
-            username: &user.username,
-            bio: user.bio.as_deref(),
-            image: user.image.as_deref(),
-            token,
-        }
+impl From<ProfileDto> for ProfileResponse {
+    fn from(profile: ProfileDto) -> Self {
+        ProfileResponse { profile }
     }
 }
