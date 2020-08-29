@@ -128,25 +128,3 @@ pub struct CommentDto {
     pub body: String,
     pub author: ProfileDto,
 }
-
-#[derive(Serialize, Debug)]
-pub struct CommentResponse {
-    pub comment: CommentDto,
-}
-
-impl From<CommentDto> for CommentResponse {
-    fn from(comment: CommentDto) -> Self {
-        CommentResponse { comment }
-    }
-}
-
-#[derive(Serialize, Debug)]
-pub struct CommentsResponse {
-    pub comments: Vec<CommentDto>,
-}
-
-impl From<Vec<CommentDto>> for CommentsResponse {
-    fn from(comments: Vec<CommentDto>) -> Self {
-        CommentsResponse { comments }
-    }
-}

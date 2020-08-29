@@ -1,10 +1,41 @@
 use crate::services::{
-    ArticleResponse, ArticleService, ArticlesResponse, CreateArticleParams, GetArticlesParams,
-    PageOptions, UpdateArticleParams, User,
+    ArticleDto, ArticleService, CreateArticleParams, GetArticlesParams, PageOptions,
+    UpdateArticleParams, User,
 };
 use crate::State;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::convert::TryFrom;
 use tide::{Body, Error, Request, Response, Result, StatusCode};
+
+#[derive(Serialize, Debug)]
+pub struct ArticleResponse {
+    pub article: ArticleDto,
+}
+
+impl TryFrom<ArticleDto> for Body {
+    type Error = tide::Error;
+
+    fn try_from(article: ArticleDto) -> Result<Self> {
+        let res = ArticleResponse { article };
+        Body::from_json(&res)
+    }
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ArticlesResponse {
+    pub articles: Vec<ArticleDto>,
+    pub articles_count: usize,
+}
+
+impl From<Vec<ArticleDto>> for ArticlesResponse {
+    fn from(articles: Vec<ArticleDto>) -> Self {
+        ArticlesResponse {
+            articles_count: articles.len(),
+            articles,
+        }
+    }
+}
 
 #[derive(Debug, Deserialize)]
 struct CreateArticlePayload {
@@ -23,8 +54,9 @@ pub async fn create_article(mut req: Request<State>) -> Result {
         .create_article(&payload.article, author.id)
         .await?;
 
-    let body = Body::from_json(&ArticleResponse::from(article))?;
-    Ok(Response::builder(StatusCode::Ok).body(body).build())
+    Ok(Response::builder(StatusCode::Ok)
+        .body(Body::try_from(article)?)
+        .build())
 }
 
 pub async fn delete_article(req: Request<State>) -> Result {
@@ -48,8 +80,9 @@ pub async fn favorite_article(req: Request<State>) -> Result {
         .favorite_article(&slug, current_user_id)
         .await?;
 
-    let body = Body::from_json(&ArticleResponse::from(article))?;
-    Ok(Response::builder(StatusCode::Ok).body(body).build())
+    Ok(Response::builder(StatusCode::Ok)
+        .body(Body::try_from(article)?)
+        .build())
 }
 
 pub async fn feed(req: Request<State>) -> Result {
@@ -78,8 +111,10 @@ pub async fn get_article(req: Request<State>) -> Result {
     let article = ArticleService::new(&state.db_pool)
         .get_article(&slug, current_user_id)
         .await?;
-    let body = Body::from_json(&ArticleResponse::from(article))?;
-    Ok(Response::builder(StatusCode::Ok).body(body).build())
+
+    Ok(Response::builder(StatusCode::Ok)
+        .body(Body::try_from(article)?)
+        .build())
 }
 
 pub async fn get_articles(req: Request<State>) -> Result {
@@ -104,8 +139,9 @@ pub async fn unfavorite_article(req: Request<State>) -> Result {
         .unfavorite_article(&slug, current_user_id)
         .await?;
 
-    let body = Body::from_json(&ArticleResponse::from(article))?;
-    Ok(Response::builder(StatusCode::Ok).body(body).build())
+    Ok(Response::builder(StatusCode::Ok)
+        .body(Body::try_from(article)?)
+        .build())
 }
 
 #[derive(Debug, Deserialize)]
@@ -123,6 +159,7 @@ pub async fn update_article(mut req: Request<State>) -> Result {
         .update_article(&slug, author_id, &payload.article)
         .await?;
 
-    let body = Body::from_json(&ArticleResponse::from(article))?;
-    Ok(Response::builder(StatusCode::Ok).body(body).build())
+    Ok(Response::builder(StatusCode::Ok)
+        .body(Body::try_from(article)?)
+        .build())
 }

@@ -252,30 +252,3 @@ pub struct ArticleDto {
     pub favorites_count: usize,
     pub author: ProfileDto,
 }
-
-#[derive(Serialize, Debug)]
-pub struct ArticleResponse {
-    pub article: ArticleDto,
-}
-
-impl From<ArticleDto> for ArticleResponse {
-    fn from(article: ArticleDto) -> Self {
-        ArticleResponse { article }
-    }
-}
-
-#[derive(Serialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct ArticlesResponse {
-    pub articles: Vec<ArticleDto>,
-    pub articles_count: usize,
-}
-
-impl From<Vec<ArticleDto>> for ArticlesResponse {
-    fn from(articles: Vec<ArticleDto>) -> Self {
-        ArticlesResponse {
-            articles_count: articles.len(),
-            articles,
-        }
-    }
-}

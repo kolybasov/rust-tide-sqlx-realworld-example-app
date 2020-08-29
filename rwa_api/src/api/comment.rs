@@ -1,9 +1,33 @@
-use crate::services::{
-    CommentResponse, CommentService, CommentsResponse, CreateCommentParams, User,
-};
+use crate::services::{CommentDto, CommentService, CreateCommentParams, User};
 use crate::State;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::convert::TryFrom;
 use tide::{Body, Request, Response, Result, StatusCode};
+
+#[derive(Serialize, Debug)]
+pub struct CommentResponse {
+    pub comment: CommentDto,
+}
+
+impl TryFrom<CommentDto> for Body {
+    type Error = tide::Error;
+
+    fn try_from(comment: CommentDto) -> Result<Self> {
+        let res = CommentResponse { comment };
+        Body::from_json(&res)
+    }
+}
+
+#[derive(Serialize, Debug)]
+pub struct CommentsResponse {
+    pub comments: Vec<CommentDto>,
+}
+
+impl From<Vec<CommentDto>> for CommentsResponse {
+    fn from(comments: Vec<CommentDto>) -> Self {
+        CommentsResponse { comments }
+    }
+}
 
 #[derive(Debug, Deserialize)]
 struct CreateCommentPayload {
@@ -20,8 +44,9 @@ pub async fn create_comment(mut req: Request<State>) -> Result {
         .create_comment(&payload.comment, &slug, author.id)
         .await?;
 
-    let body = Body::from_json(&CommentResponse::from(comment))?;
-    Ok(Response::builder(StatusCode::Created).body(body).build())
+    Ok(Response::builder(StatusCode::Created)
+        .body(Body::try_from(comment)?)
+        .build())
 }
 
 pub async fn delete_comment(req: Request<State>) -> Result {

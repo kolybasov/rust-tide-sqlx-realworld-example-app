@@ -118,17 +118,6 @@ pub struct User {
 }
 
 #[derive(Serialize, Debug)]
-pub struct UserResponse {
-    pub user: UserDto,
-}
-
-impl From<UserDto> for UserResponse {
-    fn from(user: UserDto) -> Self {
-        UserResponse { user }
-    }
-}
-
-#[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct UserDto {
     pub email: String,

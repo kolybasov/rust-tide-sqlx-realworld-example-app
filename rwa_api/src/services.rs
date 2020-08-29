@@ -7,17 +7,12 @@ pub mod tag;
 pub mod user;
 
 pub use article::{
-    ArticleDto, ArticleResponse, ArticleService, ArticlesResponse, CreateArticleParams,
-    GetArticlesParams, UpdateArticleParams,
+    ArticleDto, ArticleService, CreateArticleParams, GetArticlesParams, UpdateArticleParams,
 };
-pub use comment::{
-    CommentDto, CommentResponse, CommentService, CommentsResponse, CreateCommentParams,
-};
-pub use profile::{ProfileDto, ProfileResponse, ProfileService};
+pub use comment::{CommentDto, CommentService, CreateCommentParams};
+pub use profile::{ProfileDto, ProfileService};
 pub use tag::TagService;
-pub use user::{
-    LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserResponse, UserService,
-};
+pub use user::{LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserService};
 
 #[derive(Debug, Deserialize)]
 pub struct PageOptions {
