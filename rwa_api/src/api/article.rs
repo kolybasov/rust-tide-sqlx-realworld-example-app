@@ -1,6 +1,6 @@
-use crate::db::{ArticleResponse, ArticlesResponse, User};
 use crate::services::{
-    ArticleService, CreateArticleParams, GetArticlesParams, PageOptions, UpdateArticleParams,
+    ArticleResponse, ArticleService, ArticlesResponse, CreateArticleParams, GetArticlesParams,
+    PageOptions, UpdateArticleParams, User,
 };
 use crate::State;
 use serde::Deserialize;

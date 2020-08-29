@@ -1,5 +1,4 @@
-use crate::db::{ProfileResponse, User};
-use crate::services::ProfileService;
+use crate::services::{ProfileResponse, ProfileService, User};
 use crate::State;
 use tide::{Body, Request, Response, Result, StatusCode};
 

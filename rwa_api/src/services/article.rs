@@ -1,7 +1,7 @@
+use super::ProfileDto;
 use super::TagService;
-use crate::db::{ArticleDto, ProfileDto};
 use chrono::{DateTime, Utc};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use slug::slugify;
 use sqlx::{query_file, query_file_as, Executor, Postgres, Result};
 
@@ -234,6 +234,48 @@ impl From<ArticleRow> for ArticleDto {
                 image: article.author_image,
                 following: article.author_following,
             },
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ArticleDto {
+    pub slug: String,
+    pub title: String,
+    pub description: String,
+    pub body: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub tag_list: Vec<String>,
+    pub favorited: bool,
+    pub favorites_count: usize,
+    pub author: ProfileDto,
+}
+
+#[derive(Serialize, Debug)]
+pub struct ArticleResponse {
+    pub article: ArticleDto,
+}
+
+impl From<ArticleDto> for ArticleResponse {
+    fn from(article: ArticleDto) -> Self {
+        ArticleResponse { article }
+    }
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct ArticlesResponse {
+    pub articles: Vec<ArticleDto>,
+    pub articles_count: usize,
+}
+
+impl From<Vec<ArticleDto>> for ArticlesResponse {
+    fn from(articles: Vec<ArticleDto>) -> Self {
+        ArticlesResponse {
+            articles_count: articles.len(),
+            articles,
         }
     }
 }

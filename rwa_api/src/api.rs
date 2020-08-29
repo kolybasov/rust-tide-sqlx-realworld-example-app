@@ -1,18 +1,27 @@
-use crate::api::{article, comment, profile, tag, user, AuthMiddleware};
-use sqlx::{Pool, Postgres};
+mod article;
+mod auth_middleware;
+mod comment;
+mod profile;
+mod tag;
+mod user;
+
+use auth_middleware::AuthMiddleware;
+use sqlx::PgPool;
 use tide::{http::headers::HeaderValue, security::CorsMiddleware};
 
 #[derive(Clone)]
 pub struct State {
-    pub db_pool: Pool<Postgres>,
+    pub db_pool: PgPool,
     pub config: crate::Config,
     pub jwt: crate::jwt::JWT,
 }
 
+type ApiServer = tide::Server<State>;
+
 pub struct Server;
 
 impl Server {
-    pub fn new(state: State) -> tide::Server<State> {
+    pub fn new(state: State) -> ApiServer {
         tide::log::start();
 
         let mut app = tide::with_state(state);

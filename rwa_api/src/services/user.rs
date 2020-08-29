@@ -1,7 +1,7 @@
-use crate::db::{User, UserDto};
 use crate::jwt::JWT;
 use anyhow::Result;
-use serde::Deserialize;
+use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
 use sqlx::{query_file_as, Executor, Postgres};
 
 #[derive(Debug, Deserialize)]
@@ -102,5 +102,50 @@ where
         .await?;
 
         Ok(UserDto::with_token(updated_user, token))
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct User {
+    pub id: i32,
+    pub username: String,
+    pub email: String,
+    pub password: String,
+    pub bio: Option<String>,
+    pub image: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Serialize, Debug)]
+pub struct UserResponse {
+    pub user: UserDto,
+}
+
+impl From<UserDto> for UserResponse {
+    fn from(user: UserDto) -> Self {
+        UserResponse { user }
+    }
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UserDto {
+    pub email: String,
+    pub token: String,
+    pub username: String,
+    pub bio: Option<String>,
+    pub image: Option<String>,
+}
+
+impl UserDto {
+    pub fn with_token(user: User, token: String) -> Self {
+        UserDto {
+            email: user.email,
+            username: user.username,
+            bio: user.bio,
+            image: user.image,
+            token,
+        }
     }
 }

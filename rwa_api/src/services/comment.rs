@@ -1,6 +1,6 @@
-use crate::db::{CommentDto, ProfileDto};
+use super::ProfileDto;
 use chrono::prelude::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sqlx::{query_file, query_file_as, Executor, Postgres, Result};
 
 #[derive(Debug, Deserialize)]
@@ -116,5 +116,37 @@ impl From<CommentRow> for CommentDto {
                 following: comment.author_following,
             },
         }
+    }
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct CommentDto {
+    pub id: i32,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub body: String,
+    pub author: ProfileDto,
+}
+
+#[derive(Serialize, Debug)]
+pub struct CommentResponse {
+    pub comment: CommentDto,
+}
+
+impl From<CommentDto> for CommentResponse {
+    fn from(comment: CommentDto) -> Self {
+        CommentResponse { comment }
+    }
+}
+
+#[derive(Serialize, Debug)]
+pub struct CommentsResponse {
+    pub comments: Vec<CommentDto>,
+}
+
+impl From<Vec<CommentDto>> for CommentsResponse {
+    fn from(comments: Vec<CommentDto>) -> Self {
+        CommentsResponse { comments }
     }
 }

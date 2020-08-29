@@ -1,5 +1,6 @@
-use crate::db::{User, UserDto, UserResponse};
-use crate::services::{LoginParams, RegisterParams, UpdateUserParams, UserService};
+use crate::services::{
+    LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserResponse, UserService,
+};
 use crate::State;
 use serde::Deserialize;
 use tide::{Body, Request, Response, Result, StatusCode};

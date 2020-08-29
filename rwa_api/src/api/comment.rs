@@ -1,5 +1,6 @@
-use crate::db::{CommentResponse, CommentsResponse, User};
-use crate::services::{CommentService, CreateCommentParams};
+use crate::services::{
+    CommentResponse, CommentService, CommentsResponse, CreateCommentParams, User,
+};
 use crate::State;
 use serde::Deserialize;
 use tide::{Body, Request, Response, Result, StatusCode};

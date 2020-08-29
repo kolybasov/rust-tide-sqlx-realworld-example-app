@@ -1,4 +1,6 @@
-use crate::db::{generate_mass_insert_placeholder, Tag};
+use crate::query::generate_mass_insert_placeholder;
+use chrono::prelude::*;
+use serde::{Deserialize, Serialize};
 use slug::slugify;
 use sqlx::{query, query_file_as, Executor, Postgres, Result};
 
@@ -53,4 +55,11 @@ where
 
         Ok(())
     }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Tag {
+    pub tag: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }

@@ -1,4 +1,5 @@
-use crate::db::ProfileDto;
+use super::User;
+use serde::{Deserialize, Serialize};
 use sqlx::{query_file, query_file_as, Executor, Postgres, Result};
 
 pub struct ProfileService<E: Executor<'static, Database = Postgres> + Copy> {
@@ -55,5 +56,35 @@ where
         .await?;
 
         self.get_profile(username, Some(current_user_id)).await
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ProfileDto {
+    pub username: String,
+    pub bio: Option<String>,
+    pub image: Option<String>,
+    pub following: bool,
+}
+
+impl From<User> for ProfileDto {
+    fn from(user: User) -> Self {
+        ProfileDto {
+            username: user.username,
+            bio: user.bio,
+            image: user.image,
+            following: false,
+        }
+    }
+}
+
+#[derive(Serialize, Debug)]
+pub struct ProfileResponse {
+    pub profile: ProfileDto,
+}
+
+impl From<ProfileDto> for ProfileResponse {
+    fn from(profile: ProfileDto) -> Self {
+        ProfileResponse { profile }
     }
 }
