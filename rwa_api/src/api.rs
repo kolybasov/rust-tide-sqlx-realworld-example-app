@@ -8,6 +8,7 @@ mod user;
 use auth_middleware::AuthMiddleware;
 use sqlx::PgPool;
 use tide::{http::headers::HeaderValue, security::CorsMiddleware};
+use tide_compress::CompressMiddleware;
 
 #[derive(Clone)]
 pub struct State {
@@ -27,7 +28,13 @@ impl Server {
         let mut app = tide::with_state(state);
 
         /* Middlewares */
-        app.with(CorsMiddleware::new().allow_methods("*".parse::<HeaderValue>().unwrap()));
+        // CORS
+        let cors_methods = "*".parse::<HeaderValue>().unwrap();
+        let cors = CorsMiddleware::new().allow_methods(cors_methods);
+        // Compress
+        let compress = CompressMiddleware::new();
+
+        app.with(cors).with(compress);
 
         /* Routes */
         // Users
