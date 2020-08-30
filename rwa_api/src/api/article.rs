@@ -95,7 +95,8 @@ pub async fn feed(req: Request<State>) -> Result {
             current_user_id,
             &GetArticlesParams::default()
                 .limit(params.limit)
-                .offset(params.offset),
+                .offset(params.offset)
+                .feed(Some(true)),
         )
         .await?;
 

@@ -22,8 +22,9 @@ INNER JOIN users u
 WHERE ($2::VARCHAR IS NULL OR a.slug = $2::VARCHAR) AND
       ($3::VARCHAR IS NULL OR at.tag_id = $3::VARCHAR) AND
       ($4::VARCHAR IS NULL OR u.username = $4::VARCHAR) AND
-      ($5::VARCHAR IS NULL OR u2.username = $5::VARCHAR)
+      ($5::VARCHAR IS NULL OR u2.username = $5::VARCHAR) AND
+      ($6::BOOL IS NULL OR (uf.follower_id = $1) = $6::BOOL)
 GROUP BY a.id, u.username, u.bio, u.image
 ORDER BY a.id DESC
-LIMIT $6
-OFFSET $7
+LIMIT $7
+OFFSET $8

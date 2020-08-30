@@ -12,6 +12,7 @@ pub struct GetArticlesParams {
     pub favorited: Option<String>,
     pub limit: Option<i64>,
     pub offset: Option<i64>,
+    pub feed: Option<bool>,
 }
 
 impl GetArticlesParams {
@@ -22,6 +23,11 @@ impl GetArticlesParams {
 
     pub fn offset(mut self, offset: Option<i64>) -> Self {
         self.offset = offset;
+        self
+    }
+
+    pub fn feed(mut self, feed: Option<bool>) -> Self {
+        self.feed = feed;
         self
     }
 }
@@ -67,6 +73,7 @@ where
             options.tag,
             options.author,
             options.favorited,
+            options.feed,
             options.limit.unwrap_or(20),
             options.offset.unwrap_or(0)
         )
@@ -89,6 +96,7 @@ where
             None::<String>,
             None::<String>,
             None::<String>,
+            None::<bool>,
             1,
             0
         )
