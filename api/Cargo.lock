@@ -235,7 +235,7 @@ dependencies = [
  "bincode",
  "blake3",
  "chrono",
- "hmac 0.8.1",
+ "hmac",
  "kv-log-macro",
  "rand",
  "serde",
@@ -389,7 +389,7 @@ dependencies = [
  "cc",
  "cfg-if",
  "constant_time_eq",
- "crypto-mac 0.8.0",
+ "crypto-mac",
  "digest",
 ]
 
@@ -548,6 +548,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "conduit"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bcrypt",
+ "chrono",
+ "jsonwebtoken",
+ "serde",
+ "slug",
+ "sqlx",
+]
+
+[[package]]
 name = "constant_time_eq"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -562,7 +575,7 @@ dependencies = [
  "aes-gcm",
  "base64",
  "hkdf",
- "hmac 0.8.1",
+ "hmac",
  "percent-encoding",
  "rand",
  "sha2",
@@ -647,16 +660,6 @@ name = "crypto-mac"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b584a330336237c1eecd3e94266efb216c56ed91225d634cb2991c5f3fd1aeab"
-dependencies = [
- "generic-array",
- "subtle",
-]
-
-[[package]]
-name = "crypto-mac"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58bcd97a54c7ca5ce2f6eb16f6bede5b0ab5f0055fedc17d2f0b4466e21671ca"
 dependencies = [
  "generic-array",
  "subtle",
@@ -985,7 +988,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe1149865383e4526a43aee8495f9a325f0b806c63ce6427d06336a590abbbc9"
 dependencies = [
  "digest",
- "hmac 0.8.1",
+ "hmac",
 ]
 
 [[package]]
@@ -994,17 +997,7 @@ version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "126888268dcc288495a26bf004b38c5fdbb31682f992c84ceb046a1f0fe38840"
 dependencies = [
- "crypto-mac 0.8.0",
- "digest",
-]
-
-[[package]]
-name = "hmac"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "deae6d9dbb35ec2c502d62b8f7b1c000a0822c3b0794ba36b3149c0a1c840dff"
-dependencies = [
- "crypto-mac 0.9.1",
+ "crypto-mac",
  "digest",
 ]
 
@@ -1556,6 +1549,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "rest_api"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "conduit",
+ "dotenv",
+ "serde",
+ "serde_json",
+ "tide",
+ "tide-compress",
+]
+
+[[package]]
 name = "ring"
 version = "0.16.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1597,21 +1604,9 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-std",
- "async-trait",
- "bcrypt",
- "chrono",
- "dotenv",
- "hmac 0.9.0",
- "jsonwebtoken",
+ "conduit",
  "listenfd",
- "serde",
- "serde_json",
- "sha2",
- "slug",
- "sqlx",
- "thiserror",
- "tide",
- "tide-compress",
+ "rest_api",
 ]
 
 [[package]]
@@ -1867,7 +1862,7 @@ dependencies = [
  "futures-util",
  "hashbrown",
  "hex",
- "hmac 0.8.1",
+ "hmac",
  "itoa",
  "libc",
  "log",

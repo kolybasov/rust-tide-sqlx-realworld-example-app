@@ -1,10 +1,9 @@
-use crate::services::{
+use crate::State;
+use conduit::{
     ArticleDto, ArticleService, CreateArticleParams, GetArticlesParams, PageOptions,
     UpdateArticleParams, User,
 };
-use crate::State;
 use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
 use tide::{Body, Error, Request, Response, Result, StatusCode};
 
 #[derive(Serialize, Debug)]
@@ -12,12 +11,9 @@ pub struct ArticleResponse {
     pub article: ArticleDto,
 }
 
-impl TryFrom<ArticleDto> for Body {
-    type Error = tide::Error;
-
-    fn try_from(article: ArticleDto) -> Result<Self> {
-        let res = ArticleResponse { article };
-        Body::from_json(&res)
+impl From<ArticleDto> for ArticleResponse {
+    fn from(article: ArticleDto) -> Self {
+        ArticleResponse { article }
     }
 }
 
@@ -54,9 +50,8 @@ pub async fn create_article(mut req: Request<State>) -> Result {
         .create_article(&payload.article, author.id)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(article)?)
-        .build())
+    let res = ArticleResponse::from(article);
+    Ok(Body::from_json(&res)?.into())
 }
 
 pub async fn delete_article(req: Request<State>) -> Result {
@@ -80,9 +75,8 @@ pub async fn favorite_article(req: Request<State>) -> Result {
         .favorite_article(&slug, current_user_id)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(article)?)
-        .build())
+    let res = ArticleResponse::from(article);
+    Ok(Body::from_json(&res)?.into())
 }
 
 pub async fn feed(req: Request<State>) -> Result {
@@ -113,9 +107,8 @@ pub async fn get_article(req: Request<State>) -> Result {
         .get_article(&slug, current_user_id)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(article)?)
-        .build())
+    let res = ArticleResponse::from(article);
+    Ok(Body::from_json(&res)?.into())
 }
 
 pub async fn get_articles(req: Request<State>) -> Result {
@@ -140,9 +133,8 @@ pub async fn unfavorite_article(req: Request<State>) -> Result {
         .unfavorite_article(&slug, current_user_id)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(article)?)
-        .build())
+    let res = ArticleResponse::from(article);
+    Ok(Body::from_json(&res)?.into())
 }
 
 #[derive(Debug, Deserialize)]
@@ -160,7 +152,6 @@ pub async fn update_article(mut req: Request<State>) -> Result {
         .update_article(&slug, author_id, &payload.article)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(article)?)
-        .build())
+    let res = ArticleResponse::from(article);
+    Ok(Body::from_json(&res)?.into())
 }

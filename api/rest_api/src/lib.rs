@@ -1,20 +1,22 @@
 mod article;
 mod auth_middleware;
 mod comment;
+mod config;
 mod profile;
 mod tag;
 mod user;
 
 use auth_middleware::AuthMiddleware;
-use sqlx::PgPool;
+use conduit::{jwt::JWT, PgPool};
+pub use config::Config;
 use tide::{http::headers::HeaderValue, security::CorsMiddleware};
 use tide_compress::CompressMiddleware;
 
 #[derive(Clone)]
 pub struct State {
     pub db_pool: PgPool,
-    pub config: crate::Config,
-    pub jwt: crate::jwt::JWT,
+    pub config: Config,
+    pub jwt: JWT,
 }
 
 type ApiServer = tide::Server<State>;

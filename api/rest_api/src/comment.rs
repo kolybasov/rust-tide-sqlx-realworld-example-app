@@ -1,7 +1,6 @@
-use crate::services::{CommentDto, CommentService, CreateCommentParams, User};
 use crate::State;
+use conduit::{CommentDto, CommentService, CreateCommentParams, User};
 use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
 use tide::{Body, Request, Response, Result, StatusCode};
 
 #[derive(Serialize, Debug)]
@@ -9,12 +8,9 @@ pub struct CommentResponse {
     pub comment: CommentDto,
 }
 
-impl TryFrom<CommentDto> for Body {
-    type Error = tide::Error;
-
-    fn try_from(comment: CommentDto) -> Result<Self> {
-        let res = CommentResponse { comment };
-        Body::from_json(&res)
+impl From<CommentDto> for CommentResponse {
+    fn from(comment: CommentDto) -> Self {
+        CommentResponse { comment }
     }
 }
 
@@ -44,8 +40,9 @@ pub async fn create_comment(mut req: Request<State>) -> Result {
         .create_comment(&payload.comment, &slug, author.id)
         .await?;
 
+    let body = CommentResponse::from(comment);
     Ok(Response::builder(StatusCode::Created)
-        .body(Body::try_from(comment)?)
+        .body(Body::from_json(&body)?)
         .build())
 }
 

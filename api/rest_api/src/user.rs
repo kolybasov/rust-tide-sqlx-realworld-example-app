@@ -1,7 +1,6 @@
-use crate::services::{LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserService};
 use crate::State;
+use conduit::{LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserService};
 use serde::{Deserialize, Serialize};
-use std::convert::TryFrom;
 use tide::{Body, Request, Response, Result, StatusCode};
 
 #[derive(Serialize, Debug)]
@@ -9,12 +8,9 @@ pub struct UserResponse {
     pub user: UserDto,
 }
 
-impl TryFrom<UserDto> for Body {
-    type Error = tide::Error;
-
-    fn try_from(user: UserDto) -> Result<Self> {
-        let res = UserResponse { user };
-        Body::from_json(&res)
+impl From<UserDto> for UserResponse {
+    fn from(user: UserDto) -> Self {
+        UserResponse { user }
     }
 }
 
@@ -25,9 +21,8 @@ pub async fn get_user(req: Request<State>) -> Result {
     let token = state.jwt.sign(user)?;
     let user_dto = UserDto::with_token(user.clone(), token);
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(user_dto)?)
-        .build())
+    let res = UserResponse::from(user_dto);
+    Ok(Body::from_json(&res)?.into())
 }
 
 #[derive(Debug, Deserialize)]
@@ -43,9 +38,8 @@ pub async fn login(mut req: Request<State>) -> Result {
         .login(&payload.user, &state.jwt)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(user)?)
-        .build())
+    let res = UserResponse::from(user);
+    Ok(Body::from_json(&res)?.into())
 }
 
 #[derive(Debug, Deserialize)]
@@ -61,8 +55,9 @@ pub async fn register(mut req: Request<State>) -> Result {
         .register(&payload.user, &state.jwt)
         .await?;
 
+    let body = UserResponse::from(user);
     Ok(Response::builder(StatusCode::Created)
-        .body(Body::try_from(user)?)
+        .body(Body::from_json(&body)?)
         .build())
 }
 
@@ -80,7 +75,6 @@ pub async fn update_user(mut req: Request<State>) -> Result {
         .update_user(&payload.user, &user, &state.jwt)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(updated_user)?)
-        .build())
+    let res = UserResponse::from(updated_user);
+    Ok(Body::from_json(&res)?.into())
 }

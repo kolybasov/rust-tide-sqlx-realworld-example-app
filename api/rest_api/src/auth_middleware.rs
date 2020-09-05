@@ -1,5 +1,5 @@
-use crate::services::UserService;
 use crate::State;
+use conduit::UserService;
 use tide::http::headers;
 use tide::{Error, Middleware, Next, Request, Result, StatusCode};
 

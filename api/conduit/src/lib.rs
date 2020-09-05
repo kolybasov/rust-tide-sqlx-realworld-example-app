@@ -1,8 +1,8 @@
-use serde::Deserialize;
-
 pub mod article;
 pub mod comment;
+pub mod jwt;
 pub mod profile;
+pub mod query;
 pub mod tag;
 pub mod user;
 
@@ -11,6 +11,8 @@ pub use article::{
 };
 pub use comment::{CommentDto, CommentService, CreateCommentParams};
 pub use profile::{ProfileDto, ProfileService};
+use serde::Deserialize;
+pub use sqlx::{postgres::PgPoolOptions, PgPool};
 pub use tag::TagService;
 pub use user::{LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserService};
 

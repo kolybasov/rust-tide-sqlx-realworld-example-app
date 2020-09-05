@@ -1,20 +1,16 @@
-use crate::services::{ProfileDto, ProfileService, User};
 use crate::State;
+use conduit::{ProfileDto, ProfileService, User};
 use serde::Serialize;
-use std::convert::TryFrom;
-use tide::{Body, Request, Response, Result, StatusCode};
+use tide::{Body, Request, Result};
 
 #[derive(Serialize, Debug)]
 pub struct ProfileResponse {
     pub profile: ProfileDto,
 }
 
-impl TryFrom<ProfileDto> for Body {
-    type Error = tide::Error;
-
-    fn try_from(profile: ProfileDto) -> Result<Self> {
-        let res = ProfileResponse { profile };
-        Body::from_json(&res)
+impl From<ProfileDto> for ProfileResponse {
+    fn from(profile: ProfileDto) -> Self {
+        ProfileResponse { profile }
     }
 }
 
@@ -27,9 +23,8 @@ pub async fn get_profile(req: Request<State>) -> Result {
         .get_profile(&username, current_user_id)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(profile)?)
-        .build())
+    let res = ProfileResponse::from(profile);
+    Ok(Body::from_json(&res)?.into())
 }
 
 pub async fn follow_profile(req: Request<State>) -> Result {
@@ -41,9 +36,8 @@ pub async fn follow_profile(req: Request<State>) -> Result {
         .follow_profile(&username, current_user_id)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(profile)?)
-        .build())
+    let res = ProfileResponse::from(profile);
+    Ok(Body::from_json(&res)?.into())
 }
 
 pub async fn unfollow_profile(req: Request<State>) -> Result {
@@ -55,7 +49,6 @@ pub async fn unfollow_profile(req: Request<State>) -> Result {
         .unfollow_profile(&username, current_user_id)
         .await?;
 
-    Ok(Response::builder(StatusCode::Ok)
-        .body(Body::try_from(profile)?)
-        .build())
+    let res = ProfileResponse::from(profile);
+    Ok(Body::from_json(&res)?.into())
 }

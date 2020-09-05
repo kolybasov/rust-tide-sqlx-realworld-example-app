@@ -1,14 +1,6 @@
-pub(crate) mod api;
-pub(crate) mod config;
-pub(crate) mod jwt;
-pub(crate) mod query;
-pub(crate) mod services;
-
-use api::{Server, State};
-use config::Config;
-use jwt::JWT;
+use conduit::{jwt::JWT, PgPoolOptions};
 use listenfd::ListenFd;
-use sqlx::postgres::PgPoolOptions;
+use rest_api::{Config, Server, State};
 
 #[async_std::main]
 async fn main() -> Result<(), anyhow::Error> {
