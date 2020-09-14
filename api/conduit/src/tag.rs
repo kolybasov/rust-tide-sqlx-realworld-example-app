@@ -1,8 +1,9 @@
+use crate::error::Result;
 use crate::query::generate_mass_insert_placeholder;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use slug::slugify;
-use sqlx::{query, query_file_as, Executor, Postgres, Result};
+use sqlx::{query, query_file_as, Executor, Postgres};
 
 pub struct TagService<E: Executor<'static, Database = Postgres> + Copy> {
     db: E,

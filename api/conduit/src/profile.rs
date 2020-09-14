@@ -1,5 +1,6 @@
+use crate::error::Result;
 use serde::{Deserialize, Serialize};
-use sqlx::{query_file, query_file_as, Executor, Postgres, Result};
+use sqlx::{query_file, query_file_as, Executor, Postgres};
 
 pub struct ProfileService<E: Executor<'static, Database = Postgres> + Copy> {
     db: E,

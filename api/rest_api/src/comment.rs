@@ -1,7 +1,34 @@
-use crate::State;
+use crate::filters;
 use conduit::{CommentDto, CommentService, CreateCommentParams, User};
+use filters::state::{with_db, PgPool, WarpState};
 use serde::{Deserialize, Serialize};
-use tide::{Body, Request, Response, Result, StatusCode};
+use warp::{Filter, Rejection, Reply};
+
+pub fn routes(state: WarpState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    // GET /articles/:slug/comments
+    let get_comments = warp::path!("articles" / String / "comments")
+        .and(warp::get())
+        .and(filters::auth::optional(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(get_comments_handler);
+
+    // DELETE /articles/:slug/comments/:id
+    let delete_comment = warp::path!("articles" / String / "comments" / i32)
+        .and(warp::delete())
+        .and(filters::auth(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(delete_comment_handler);
+
+    // POST /articles/:slug/comments
+    let create_comment = warp::path!("articles" / String / "comments")
+        .and(warp::post())
+        .and(warp::body::json())
+        .and(filters::auth(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(create_comment_handler);
+
+    get_comments.or(delete_comment).or(create_comment)
+}
 
 #[derive(Serialize, Debug)]
 pub struct CommentResponse {
@@ -30,43 +57,49 @@ struct CreateCommentPayload {
     comment: CreateCommentParams,
 }
 
-pub async fn create_comment(mut req: Request<State>) -> Result {
-    let payload: CreateCommentPayload = req.body_json().await?;
-    let state = req.state();
-    let slug: String = req.param("slug")?;
-    let author = req.ext::<User>().unwrap();
-
-    let comment = CommentService::new(&state.db_pool)
+async fn create_comment_handler(
+    slug: String,
+    payload: CreateCommentPayload,
+    author: User,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    let comment = CommentService::new(&db_pool)
         .create_comment(&payload.comment, &slug, author.id)
         .await?;
 
     let body = CommentResponse::from(comment);
-    Ok(Response::builder(StatusCode::Created)
-        .body(Body::from_json(&body)?)
-        .build())
+    Ok(warp::reply::with_status(
+        warp::reply::json(&body),
+        warp::http::StatusCode::CREATED,
+    ))
 }
 
-pub async fn delete_comment(req: Request<State>) -> Result {
-    let state = req.state();
-    let comment_id: i32 = req.param("id")?;
-    let current_user_id = req.ext::<User>().unwrap().id;
-
-    CommentService::new(&state.db_pool)
-        .delete_comment(comment_id, current_user_id)
+async fn delete_comment_handler(
+    _slug: String,
+    comment_id: i32,
+    user: User,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    CommentService::new(&db_pool)
+        .delete_comment(comment_id, user.id)
         .await?;
 
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(warp::reply::with_status(
+        warp::reply(),
+        warp::http::StatusCode::NO_CONTENT,
+    ))
 }
 
-pub async fn get_comments(req: Request<State>) -> Result {
-    let state = req.state();
-    let slug: String = req.param("slug")?;
-    let current_user_id = req.ext::<User>().map(|user| user.id).or(None);
+async fn get_comments_handler(
+    slug: String,
+    user: Option<User>,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    let current_user_id = user.map(|user| user.id).or(None);
 
-    let comments = CommentService::new(&state.db_pool)
+    let comments = CommentService::new(&db_pool)
         .get_comments(&slug, current_user_id)
         .await?;
 
-    let body = Body::from_json(&CommentsResponse::from(comments))?;
-    Ok(Response::builder(StatusCode::Ok).body(body).build())
+    Ok(warp::reply::json(&CommentsResponse::from(comments)))
 }

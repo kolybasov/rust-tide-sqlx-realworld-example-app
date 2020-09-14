@@ -11,8 +11,8 @@ members = [
 ]
 
 [dependencies]
-async-std = { version = "1.6", features = ["attributes"] }
-anyhow = "1.0"
+tokio = { version = "0.2.22", features = ["full"] }
+anyhow = "1.0.32"
 listenfd = "0.3.3"
 conduit = { path = "./conduit" }
 rest_api = { path = "./rest_api" }

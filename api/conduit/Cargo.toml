@@ -7,8 +7,11 @@ edition = "2018"
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
-sqlx = { version = "0.4.0-beta.1", features = ["postgres", "chrono", "offline"] }
+sqlx = { version = "0.4.0-beta.1", default-features = false, features = ["macros", "postgres", "chrono", "offline", "runtime-tokio"] }
 anyhow = "1.0"
 bcrypt = "0.8"
 slug = "0.1"
 jsonwebtoken = "7.2"
+dotenv = "0.15.0"
+thiserror = "1.0.20"
+warp = "0.2.5"

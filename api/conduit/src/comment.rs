@@ -1,7 +1,8 @@
 use super::ProfileDto;
+use crate::error::Result;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use sqlx::{query_file, query_file_as, Executor, Postgres, Result};
+use sqlx::{query_file, query_file_as, Executor, Postgres};
 
 #[derive(Debug, Deserialize)]
 pub struct CreateCommentParams {

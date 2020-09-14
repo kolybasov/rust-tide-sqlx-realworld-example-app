@@ -1,9 +1,10 @@
 use super::ProfileDto;
 use super::TagService;
+use crate::error::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use slug::slugify;
-use sqlx::{query_file, query_file_as, Executor, Postgres, Result};
+use sqlx::{query_file, query_file_as, Executor, Postgres};
 
 #[derive(Debug, Deserialize, Default)]
 pub struct GetArticlesParams {

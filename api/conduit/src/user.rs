@@ -1,5 +1,5 @@
+use crate::error::{Error, Result};
 use crate::jwt::JWT;
-use anyhow::Result;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::{query_file_as, Executor, Postgres};
@@ -70,7 +70,7 @@ where
             let token = jwt.sign(&user)?;
             Ok(UserDto::with_token(user, token))
         } else {
-            Err(anyhow::Error::msg("password invalid"))
+            Err(Error::InvalidPassword)
         }
     }
 

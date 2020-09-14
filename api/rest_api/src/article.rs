@@ -1,10 +1,84 @@
-use crate::State;
+use crate::{
+    filters,
+    filters::state::{with_db, PgPool, WarpState},
+};
 use conduit::{
     ArticleDto, ArticleService, CreateArticleParams, GetArticlesParams, PageOptions,
     UpdateArticleParams, User,
 };
 use serde::{Deserialize, Serialize};
-use tide::{Body, Error, Request, Response, Result, StatusCode};
+use warp::{Filter, Rejection, Reply};
+
+pub fn routes(state: WarpState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    // GET /articles
+    let get_articles = warp::path!("articles")
+        .and(warp::get())
+        .and(warp::query())
+        .and(filters::auth::optional(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(get_articles_handler);
+
+    // POST /articles
+    let create_article = warp::path!("articles")
+        .and(warp::post())
+        .and(warp::body::json())
+        .and(filters::auth(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(create_article_handler);
+
+    // GET /articles/feed
+    let feed = warp::path!("articles" / "feed")
+        .and(warp::get())
+        .and(warp::query())
+        .and(filters::auth(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(feed_handler);
+
+    // GET /articles/:slug
+    let get_article = warp::path!("articles" / String)
+        .and(warp::get())
+        .and(filters::auth::optional(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(get_article_handler);
+
+    // PUT /articles/:slug
+    let update_article = warp::path!("articles" / String)
+        .and(warp::put())
+        .and(warp::body::json())
+        .and(filters::auth(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(update_article_handler);
+
+    // DELETE /articles/:slug
+    let delete_article = warp::path!("articles" / String)
+        .and(warp::delete())
+        .and(filters::auth(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(delete_article_handler);
+
+    // POST /articles/:slug/favorite
+    let favorite_article = warp::path!("articles" / String / "favorite")
+        .and(warp::post())
+        .and(filters::auth(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(favorite_article_handler);
+
+    // DELETE /articles/:slug/favorite
+    let unfavorite_article = warp::path!("articles" / String / "favorite")
+        .and(warp::delete())
+        .and(filters::auth(state.clone()))
+        .and(with_db(state.clone()))
+        .and_then(unfavorite_article_handler);
+
+    get_articles
+        .or(create_article)
+        .or(feed)
+        .or(get_article)
+        .or(update_article)
+        .or(delete_article)
+        .or(favorite_article)
+        .or(unfavorite_article)
+}
 
 #[derive(Serialize, Debug)]
 pub struct ArticleResponse {
@@ -38,55 +112,56 @@ struct CreateArticlePayload {
     article: CreateArticleParams,
 }
 
-pub async fn create_article(mut req: Request<State>) -> Result {
-    let payload: CreateArticlePayload = req.body_json().await?;
-    let state = req.state();
-    let author = req.ext::<User>().ok_or(Error::from_str(
-        StatusCode::Unauthorized,
-        "No user provided",
-    ))?;
-
-    let article = ArticleService::new(&state.db_pool)
+async fn create_article_handler(
+    payload: CreateArticlePayload,
+    author: User,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    let article = ArticleService::new(&db_pool)
         .create_article(&payload.article, author.id)
         .await?;
 
-    let res = ArticleResponse::from(article);
-    Ok(Body::from_json(&res)?.into())
+    Ok(warp::reply::with_status(
+        warp::reply::json(&ArticleResponse::from(article)),
+        warp::http::StatusCode::CREATED,
+    ))
 }
 
-pub async fn delete_article(req: Request<State>) -> Result {
-    let state = req.state();
-    let current_user_id = req.ext::<User>().unwrap().id;
-    let slug: String = req.param("slug")?;
-
-    ArticleService::new(&state.db_pool)
-        .delete_article(&slug, current_user_id)
+async fn delete_article_handler(
+    slug: String,
+    user: User,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    ArticleService::new(&db_pool)
+        .delete_article(&slug, user.id)
         .await?;
 
-    Ok(Response::new(StatusCode::NoContent))
+    Ok(warp::reply::with_status(
+        warp::reply(),
+        warp::http::StatusCode::NO_CONTENT,
+    ))
 }
 
-pub async fn favorite_article(req: Request<State>) -> Result {
-    let state = req.state();
-    let slug: String = req.param("slug")?;
-    let current_user_id = req.ext::<User>().unwrap().id;
-
-    let article = ArticleService::new(&state.db_pool)
-        .favorite_article(&slug, current_user_id)
+async fn favorite_article_handler(
+    slug: String,
+    user: User,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    let article = ArticleService::new(&db_pool)
+        .favorite_article(&slug, user.id)
         .await?;
 
-    let res = ArticleResponse::from(article);
-    Ok(Body::from_json(&res)?.into())
+    Ok(warp::reply::json(&ArticleResponse::from(article)))
 }
 
-pub async fn feed(req: Request<State>) -> Result {
-    let state = req.state();
-    let current_user_id = req.ext::<User>().map(|user| user.id).or(None);
-    let params: PageOptions = req.query()?;
-
-    let articles = ArticleService::new(&state.db_pool)
+async fn feed_handler(
+    params: PageOptions,
+    user: User,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    let articles = ArticleService::new(&db_pool)
         .get_articles(
-            current_user_id,
+            Some(user.id),
             &GetArticlesParams::default()
                 .limit(params.limit)
                 .offset(params.offset)
@@ -94,47 +169,47 @@ pub async fn feed(req: Request<State>) -> Result {
         )
         .await?;
 
-    let body = Body::from_json(&ArticlesResponse::from(articles))?;
-    Ok(Response::builder(StatusCode::Ok).body(body).build())
+    Ok(warp::reply::json(&ArticlesResponse::from(articles)))
 }
 
-pub async fn get_article(req: Request<State>) -> Result {
-    let state = req.state();
-    let current_user_id = req.ext::<User>().map(|user| user.id).or(None);
-    let slug: String = req.param("slug")?;
+async fn get_article_handler(
+    slug: String,
+    user: Option<User>,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    let current_user_id = user.map(|user| user.id).or(None);
 
-    let article = ArticleService::new(&state.db_pool)
+    let article = ArticleService::new(&db_pool)
         .get_article(&slug, current_user_id)
         .await?;
 
-    let res = ArticleResponse::from(article);
-    Ok(Body::from_json(&res)?.into())
+    Ok(warp::reply::json(&ArticleResponse::from(article)))
 }
 
-pub async fn get_articles(req: Request<State>) -> Result {
-    let state = req.state();
-    let current_user_id = req.ext::<User>().map(|user| user.id).or(None);
-    let params: GetArticlesParams = req.query()?;
+async fn get_articles_handler(
+    params: GetArticlesParams,
+    user: Option<User>,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    let current_user_id = user.map(|user| user.id).or(None);
 
-    let articles = ArticleService::new(&state.db_pool)
+    let articles = ArticleService::new(&db_pool)
         .get_articles(current_user_id, &params)
         .await?;
 
-    let body = Body::from_json(&ArticlesResponse::from(articles))?;
-    Ok(Response::builder(StatusCode::Ok).body(body).build())
+    Ok(warp::reply::json(&ArticlesResponse::from(articles)))
 }
 
-pub async fn unfavorite_article(req: Request<State>) -> Result {
-    let state = req.state();
-    let slug: String = req.param("slug")?;
-    let current_user_id = req.ext::<User>().unwrap().id;
-
-    let article = ArticleService::new(&state.db_pool)
-        .unfavorite_article(&slug, current_user_id)
+async fn unfavorite_article_handler(
+    slug: String,
+    user: User,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    let article = ArticleService::new(&db_pool)
+        .unfavorite_article(&slug, user.id)
         .await?;
 
-    let res = ArticleResponse::from(article);
-    Ok(Body::from_json(&res)?.into())
+    Ok(warp::reply::json(&ArticleResponse::from(article)))
 }
 
 #[derive(Debug, Deserialize)]
@@ -142,16 +217,15 @@ struct UpdateArticlePayload {
     article: UpdateArticleParams,
 }
 
-pub async fn update_article(mut req: Request<State>) -> Result {
-    let payload: UpdateArticlePayload = req.body_json().await?;
-    let state = req.state();
-    let slug: String = req.param("slug")?;
-    let author_id = req.ext::<User>().unwrap().id;
-
-    let article = ArticleService::new(&state.db_pool)
-        .update_article(&slug, author_id, &payload.article)
+async fn update_article_handler(
+    slug: String,
+    payload: UpdateArticlePayload,
+    author: User,
+    db_pool: PgPool,
+) -> Result<impl Reply, Rejection> {
+    let article = ArticleService::new(&db_pool)
+        .update_article(&slug, author.id, &payload.article)
         .await?;
 
-    let res = ArticleResponse::from(article);
-    Ok(Body::from_json(&res)?.into())
+    Ok(warp::reply::json(&ArticleResponse::from(article)))
 }
