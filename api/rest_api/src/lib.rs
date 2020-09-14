@@ -11,7 +11,7 @@ pub use filters::state::WarpState;
 pub use hyper;
 pub use state::State;
 pub use warp;
-use warp::{Filter, Rejection, Reply};
+use warp::{http::Method, Filter, Rejection, Reply};
 
 pub struct Server;
 
@@ -25,7 +25,12 @@ impl Server {
 
         // Middlewares
         routes
-            .with(warp::cors().allow_any_origin())
+            .with(
+                warp::cors()
+                    .allow_any_origin()
+                    .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE])
+                    .allow_headers(vec!["content-type", "authorization"]),
+            )
             .with(warp::compression::brotli())
     }
 }
