@@ -1,8 +1,10 @@
 use conduit::{config::Config, jwt::JWT, PgPoolOptions};
+use gql::{schema, Context};
 use hyper::server::Server as HyperServer;
 use listenfd::ListenFd;
-use rest_api::{hyper, warp, Server, State, WarpState};
+use rest::{hyper, warp, Server, State, WarpState};
 use std::convert::Infallible;
+use warp::Filter;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
@@ -18,13 +20,18 @@ async fn main() -> Result<(), anyhow::Error> {
 
     let url = format!("{}:{}", config.host, config.port);
     let state: WarpState = State {
-        db_pool,
+        db_pool: db_pool.clone(),
         config,
         jwt,
     }
     .into();
 
-    let svc = warp::service(Server::new(state));
+    let context = Context { db_pool };
+    let ctx = warp::any().map(move || context.clone());
+    let routes = Server::new(state)
+        .or(warp::path!("graphiql").and(juniper_warp::graphiql_filter("/graphql", None)))
+        .or(warp::path!("graphql").and(juniper_warp::make_graphql_filter(schema(), ctx.boxed())));
+    let svc = warp::service(routes);
     let make_svc = hyper::service::make_service_fn(|_: _| {
         let svc = svc.clone();
         async move { Ok::<_, Infallible>(svc) }
