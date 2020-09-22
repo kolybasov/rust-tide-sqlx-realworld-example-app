@@ -1,16 +1,19 @@
-use crate::{filters::state::with_db, WarpState};
 use conduit::{PgPool, TagService};
 use serde::Serialize;
+use server::{warp, with_db, ServerState};
 use warp::{Filter, Rejection, Reply};
 
 pub fn routes(
-    state: WarpState,
+    state: ServerState,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     // GET /tags
-    warp::path!("tags")
+    let get_tags = warp::path!("tags")
         .and(warp::get())
         .and(with_db(state))
         .and_then(get_tags_handler)
+        .boxed();
+
+    get_tags
 }
 
 pub async fn get_tags_handler(db_pool: PgPool) -> Result<impl Reply, Rejection> {

@@ -1,33 +1,35 @@
-use crate::filters;
-use conduit::{CommentDto, CommentService, CreateCommentParams, User};
-use filters::state::{with_db, PgPool, WarpState};
+use conduit::{CommentDto, CommentService, CreateCommentParams, PgPool, User};
 use serde::{Deserialize, Serialize};
+use server::{auth, warp, with_db, ServerState};
 use warp::{Filter, Rejection, Reply};
 
-pub fn routes(state: WarpState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     // GET /articles/:slug/comments
     let get_comments = warp::path!("articles" / String / "comments")
         .and(warp::get())
-        .and(filters::auth::optional(state.clone()))
+        .and(auth::optional(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(get_comments_handler);
+        .and_then(get_comments_handler)
+        .boxed();
 
     // DELETE /articles/:slug/comments/:id
     let delete_comment = warp::path!("articles" / String / "comments" / i32)
         .and(warp::delete())
-        .and(filters::auth(state.clone()))
+        .and(auth(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(delete_comment_handler);
+        .and_then(delete_comment_handler)
+        .boxed();
 
     // POST /articles/:slug/comments
     let create_comment = warp::path!("articles" / String / "comments")
         .and(warp::post())
         .and(warp::body::json())
-        .and(filters::auth(state.clone()))
+        .and(auth(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(create_comment_handler);
+        .and_then(create_comment_handler)
+        .boxed();
 
-    get_comments.or(delete_comment).or(create_comment)
+    get_comments.or(delete_comment).or(create_comment).boxed()
 }
 
 #[derive(Serialize, Debug)]

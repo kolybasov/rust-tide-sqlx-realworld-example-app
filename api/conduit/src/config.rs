@@ -25,4 +25,8 @@ impl Config {
             port,
         })
     }
+
+    pub fn url(&self) -> String {
+        format!("{}:{}", self.host, self.port)
+    }
 }

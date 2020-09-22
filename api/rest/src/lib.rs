@@ -1,27 +1,23 @@
 mod article;
 mod comment;
-mod filters;
 mod profile;
-mod state;
 mod tag;
 mod user;
 
 pub use conduit::config::Config;
-pub use filters::state::WarpState;
-pub use hyper;
-pub use state::State;
-pub use warp;
+use server::{warp, ServerState};
 use warp::{http::Method, Filter, Rejection, Reply};
 
-pub struct Server;
+pub struct Rest;
 
-impl Server {
-    pub fn new(state: WarpState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+impl Rest {
+    pub fn new(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
         let routes = tag::routes(state.clone())
             .or(comment::routes(state.clone()))
             .or(user::routes(state.clone()))
             .or(profile::routes(state.clone()))
-            .or(article::routes(state.clone()));
+            .or(article::routes(state.clone()))
+            .boxed();
 
         // Middlewares
         routes
@@ -32,5 +28,6 @@ impl Server {
                     .allow_headers(vec!["content-type", "authorization"]),
             )
             .with(warp::compression::brotli())
+            .boxed()
     }
 }

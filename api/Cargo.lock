@@ -646,12 +646,9 @@ name = "gql"
 version = "0.1.0"
 dependencies = [
  "conduit",
- "dotenv",
- "hyper",
  "juniper",
- "serde",
- "tokio",
- "warp",
+ "juniper_warp",
+ "server",
 ]
 
 [[package]]
@@ -1600,11 +1597,8 @@ name = "rest"
 version = "0.1.0"
 dependencies = [
  "conduit",
- "dotenv",
- "hyper",
  "serde",
- "tokio",
- "warp",
+ "server",
 ]
 
 [[package]]
@@ -1642,9 +1636,8 @@ dependencies = [
  "anyhow",
  "conduit",
  "gql",
- "juniper_warp",
- "listenfd",
  "rest",
+ "server",
  "tokio",
 ]
 
@@ -1757,6 +1750,18 @@ dependencies = [
  "itoa",
  "serde",
  "url",
+]
+
+[[package]]
+name = "server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "conduit",
+ "hyper",
+ "listenfd",
+ "tokio",
+ "warp",
 ]
 
 [[package]]

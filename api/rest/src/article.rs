@@ -1,74 +1,79 @@
-use crate::{
-    filters,
-    filters::state::{with_db, PgPool, WarpState},
-};
 use conduit::{
-    ArticleDto, ArticleService, CreateArticleParams, GetArticlesParams, PageOptions,
+    ArticleDto, ArticleService, CreateArticleParams, GetArticlesParams, PageOptions, PgPool,
     UpdateArticleParams, User,
 };
 use serde::{Deserialize, Serialize};
+use server::{auth, warp, with_db, ServerState};
 use warp::{Filter, Rejection, Reply};
 
-pub fn routes(state: WarpState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     // GET /articles
     let get_articles = warp::path!("articles")
         .and(warp::get())
         .and(warp::query())
-        .and(filters::auth::optional(state.clone()))
+        .and(auth::optional(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(get_articles_handler);
+        .and_then(get_articles_handler)
+        .boxed();
 
     // POST /articles
     let create_article = warp::path!("articles")
         .and(warp::post())
         .and(warp::body::json())
-        .and(filters::auth(state.clone()))
+        .and(auth(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(create_article_handler);
+        .and_then(create_article_handler)
+        .boxed();
 
     // GET /articles/feed
     let feed = warp::path!("articles" / "feed")
         .and(warp::get())
         .and(warp::query())
-        .and(filters::auth(state.clone()))
+        .and(auth(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(feed_handler);
+        .and_then(feed_handler)
+        .boxed();
 
     // GET /articles/:slug
     let get_article = warp::path!("articles" / String)
         .and(warp::get())
-        .and(filters::auth::optional(state.clone()))
+        .and(auth::optional(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(get_article_handler);
+        .and_then(get_article_handler)
+        .boxed();
 
     // PUT /articles/:slug
     let update_article = warp::path!("articles" / String)
         .and(warp::put())
         .and(warp::body::json())
-        .and(filters::auth(state.clone()))
+        .and(auth(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(update_article_handler);
+        .and_then(update_article_handler)
+        .boxed();
 
     // DELETE /articles/:slug
     let delete_article = warp::path!("articles" / String)
         .and(warp::delete())
-        .and(filters::auth(state.clone()))
+        .and(auth(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(delete_article_handler);
+        .and_then(delete_article_handler)
+        .boxed();
 
     // POST /articles/:slug/favorite
     let favorite_article = warp::path!("articles" / String / "favorite")
         .and(warp::post())
-        .and(filters::auth(state.clone()))
+        .and(auth(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(favorite_article_handler);
+        .and_then(favorite_article_handler)
+        .boxed();
 
     // DELETE /articles/:slug/favorite
     let unfavorite_article = warp::path!("articles" / String / "favorite")
         .and(warp::delete())
-        .and(filters::auth(state.clone()))
+        .and(auth(state.clone()))
         .and(with_db(state.clone()))
-        .and_then(unfavorite_article_handler);
+        .and_then(unfavorite_article_handler)
+        .boxed();
 
     get_articles
         .or(create_article)
@@ -78,6 +83,7 @@ pub fn routes(state: WarpState) -> impl Filter<Extract = impl Reply, Error = Rej
         .or(delete_article)
         .or(favorite_article)
         .or(unfavorite_article)
+        .boxed()
 }
 
 #[derive(Serialize, Debug)]

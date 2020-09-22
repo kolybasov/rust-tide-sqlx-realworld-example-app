@@ -1,44 +1,45 @@
-use crate::{
-    filters,
-    filters::state::{with_state, WarpState},
-};
 use conduit::{
     error::Error, LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserService,
 };
 use serde::{Deserialize, Serialize};
+use server::{auth, warp, with_state, ServerState};
 use warp::{Filter, Rejection, Reply};
 
-pub fn routes(state: WarpState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     // GET /user
     let get_user = warp::path!("user")
         .and(warp::get())
         .and(with_state(state.clone()))
-        .and(filters::auth(state.clone()))
-        .and_then(get_user_handler);
+        .and(auth(state.clone()))
+        .and_then(get_user_handler)
+        .boxed();
 
     // PUT /user
     let update_user = warp::path!("user")
         .and(warp::put())
         .and(warp::body::json())
         .and(with_state(state.clone()))
-        .and(filters::auth(state.clone()))
-        .and_then(update_user_handler);
+        .and(auth(state.clone()))
+        .and_then(update_user_handler)
+        .boxed();
 
     // POST /users/login
     let login = warp::path!("users" / "login")
         .and(warp::post())
         .and(warp::body::json())
         .and(with_state(state.clone()))
-        .and_then(login_handler);
+        .and_then(login_handler)
+        .boxed();
 
     // POST /users
     let register = warp::path!("users")
         .and(warp::post())
         .and(warp::body::json())
         .and(with_state(state.clone()))
-        .and_then(register_handler);
+        .and_then(register_handler)
+        .boxed();
 
-    get_user.or(update_user).or(login).or(register)
+    get_user.or(update_user).or(login).or(register).boxed()
 }
 
 #[derive(Serialize, Debug)]
@@ -52,7 +53,7 @@ impl From<UserDto> for UserResponse {
     }
 }
 
-async fn get_user_handler(state: WarpState, user: User) -> Result<impl Reply, Rejection> {
+async fn get_user_handler(state: ServerState, user: User) -> Result<impl Reply, Rejection> {
     let state = state.read().await;
     let token = state.jwt.sign(&user).map_err(Error::from)?;
     let user_dto = UserDto::with_token(user, token);
@@ -64,7 +65,7 @@ struct LoginPayload {
     user: LoginParams,
 }
 
-async fn login_handler(payload: LoginPayload, state: WarpState) -> Result<impl Reply, Rejection> {
+async fn login_handler(payload: LoginPayload, state: ServerState) -> Result<impl Reply, Rejection> {
     let state = state.read().await;
 
     let user = UserService::new(&state.db_pool)
@@ -81,7 +82,7 @@ struct RegisterPayload {
 
 async fn register_handler(
     payload: RegisterPayload,
-    state: WarpState,
+    state: ServerState,
 ) -> Result<impl Reply, Rejection> {
     let state = state.read().await;
 
@@ -103,7 +104,7 @@ struct UpdateUserPayload {
 
 async fn update_user_handler(
     payload: UpdateUserPayload,
-    state: WarpState,
+    state: ServerState,
     user: User,
 ) -> Result<impl Reply, Rejection> {
     let state = state.read().await;
