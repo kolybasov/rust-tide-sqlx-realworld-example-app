@@ -1,4 +1,5 @@
 use conduit::{PgPool, User};
+use juniper::{FieldError, Value};
 use server::{auth, warp, with_state, ServerState};
 use warp::{Filter, Rejection};
 
@@ -19,5 +20,11 @@ impl Context {
 
     pub async fn get_pool(&self) -> PgPool {
         self.state.read().await.db_pool.clone()
+    }
+
+    pub fn get_user(&self) -> Result<&User, FieldError> {
+        self.user
+            .as_ref()
+            .ok_or_else(|| FieldError::new("Unauthorized", Value::Null))
     }
 }

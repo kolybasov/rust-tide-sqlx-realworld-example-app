@@ -99,9 +99,7 @@ pub mod mutations {
     pub async fn update_user(ctx: &Context, input: UserUpdateInput) -> FieldResult<User> {
         let state = ctx.state.read().await;
         Ok(UserService::new(&state.db_pool)
-            .update_user(&input.into(), &ctx.user.clone().unwrap(), |user| {
-                state.jwt.sign(user)
-            })
+            .update_user(&input.into(), ctx.get_user()?, |user| state.jwt.sign(user))
             .await?
             .into())
     }
