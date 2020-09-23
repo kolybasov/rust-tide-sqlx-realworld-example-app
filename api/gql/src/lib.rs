@@ -1,9 +1,12 @@
 mod context;
+mod mutation;
 mod query;
+mod user;
 
 use context::Context;
-use juniper::{EmptyMutation, EmptySubscription, RootNode};
+use juniper::{EmptySubscription, RootNode};
 use juniper_warp::{graphiql_filter, make_graphql_filter};
+use mutation::Mutation;
 use query::Query;
 use server::{warp, ServerState};
 use warp::{Filter, Rejection, Reply};
@@ -23,12 +26,8 @@ impl Gql {
     }
 }
 
-type Schema = RootNode<'static, Query, EmptyMutation<Context>, EmptySubscription<Context>>;
+type Schema = RootNode<'static, Query, Mutation, EmptySubscription<Context>>;
 
 fn schema() -> Schema {
-    Schema::new(
-        Query,
-        EmptyMutation::<Context>::new(),
-        EmptySubscription::<Context>::new(),
-    )
+    Schema::new(Query, Mutation, EmptySubscription::<Context>::new())
 }
