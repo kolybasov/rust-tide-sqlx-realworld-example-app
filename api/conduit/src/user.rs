@@ -1,5 +1,4 @@
 use crate::error::{Error, Result};
-use crate::jwt::JWT;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::{query_file_as, Executor, Postgres};
@@ -38,7 +37,10 @@ where
         UserService { db: executor }
     }
 
-    pub async fn register(&self, params: &RegisterParams, jwt: &JWT) -> Result<UserDto> {
+    pub async fn register<F>(&self, params: &RegisterParams, create_token: F) -> Result<UserDto>
+    where
+        F: FnOnce(&User) -> jsonwebtoken::errors::Result<String>,
+    {
         let password = bcrypt::hash(&params.password, bcrypt::DEFAULT_COST)?;
         let user = query_file_as!(
             User,
@@ -50,7 +52,7 @@ where
         .fetch_one(self.db)
         .await?;
 
-        let token = jwt.sign(&user)?;
+        let token = create_token(&user)?;
         Ok(UserDto::with_token(user, token))
     }
 
@@ -61,26 +63,32 @@ where
         Ok(user)
     }
 
-    pub async fn login(&self, params: &LoginParams, jwt: &JWT) -> Result<UserDto> {
+    pub async fn login<F>(&self, params: &LoginParams, create_token: F) -> Result<UserDto>
+    where
+        F: FnOnce(&User) -> jsonwebtoken::errors::Result<String>,
+    {
         let user: User = query_file_as!(User, "./src/queries/get_user_by_email.sql", params.email)
             .fetch_one(self.db)
             .await?;
 
         if bcrypt::verify(&params.password, &user.password)? {
-            let token = jwt.sign(&user)?;
+            let token = create_token(&user)?;
             Ok(UserDto::with_token(user, token))
         } else {
             Err(Error::InvalidPassword)
         }
     }
 
-    pub async fn update_user(
+    pub async fn update_user<F>(
         &self,
         params: &UpdateUserParams,
         user: &User,
-        jwt: &JWT,
-    ) -> Result<UserDto> {
-        let token = jwt.sign(&user)?;
+        create_token: F,
+    ) -> Result<UserDto>
+    where
+        F: FnOnce(&User) -> jsonwebtoken::errors::Result<String>,
+    {
+        let token = create_token(&user)?;
         let password = if let Some(new_password) = &params.password {
             let hash = bcrypt::hash(new_password, bcrypt::DEFAULT_COST)?;
             Some(hash)

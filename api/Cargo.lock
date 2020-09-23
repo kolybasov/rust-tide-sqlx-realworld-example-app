@@ -293,10 +293,8 @@ dependencies = [
 name = "conduit"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "bcrypt",
  "chrono",
- "dotenv",
  "jsonwebtoken",
  "serde",
  "slug",
@@ -1635,6 +1633,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "conduit",
+ "dotenv",
  "gql",
  "rest",
  "server",
@@ -1757,9 +1756,12 @@ name = "server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "conduit",
  "hyper",
+ "jsonwebtoken",
  "listenfd",
+ "serde",
  "tokio",
  "warp",
 ]

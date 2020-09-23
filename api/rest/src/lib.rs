@@ -4,7 +4,6 @@ mod profile;
 mod tag;
 mod user;
 
-pub use conduit::config::Config;
 use server::{warp, ServerState};
 use warp::{http::Method, Filter, Rejection, Reply};
 

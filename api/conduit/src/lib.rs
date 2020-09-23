@@ -1,8 +1,6 @@
 pub mod article;
 pub mod comment;
-pub mod config;
 pub mod error;
-pub mod jwt;
 pub mod profile;
 pub mod query;
 pub mod tag;

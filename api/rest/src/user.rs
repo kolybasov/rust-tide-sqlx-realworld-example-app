@@ -69,7 +69,7 @@ async fn login_handler(payload: LoginPayload, state: ServerState) -> Result<impl
     let state = state.read().await;
 
     let user = UserService::new(&state.db_pool)
-        .login(&payload.user, &state.jwt)
+        .login(&payload.user, |user| state.jwt.sign(user))
         .await?;
 
     Ok(warp::reply::json(&UserResponse::from(user)))
@@ -87,7 +87,7 @@ async fn register_handler(
     let state = state.read().await;
 
     let user = UserService::new(&state.db_pool)
-        .register(&payload.user, &state.jwt)
+        .register(&payload.user, |user| state.jwt.sign(user))
         .await?;
 
     let body = UserResponse::from(user);
@@ -110,7 +110,7 @@ async fn update_user_handler(
     let state = state.read().await;
 
     let updated_user = UserService::new(&state.db_pool)
-        .update_user(&payload.user, &user, &state.jwt)
+        .update_user(&payload.user, &user, |user| state.jwt.sign(user))
         .await?;
 
     Ok(warp::reply::json(&UserResponse::from(updated_user)))

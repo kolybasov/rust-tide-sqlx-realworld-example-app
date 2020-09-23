@@ -1,4 +1,5 @@
-use conduit::{jwt::JWT, PgPool};
+use crate::JWT;
+use conduit::PgPool;
 use std::convert::Infallible;
 use std::sync::Arc;
 use tokio::sync::RwLock;

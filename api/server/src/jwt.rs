@@ -1,5 +1,5 @@
-use crate::User;
 use chrono::Utc;
+use conduit::User;
 use jsonwebtoken::{decode, encode, errors, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 

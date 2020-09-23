@@ -1,7 +1,10 @@
-use conduit::{config::Config, jwt::JWT, PgPoolOptions};
+mod config;
+
+use conduit::PgPoolOptions;
+use config::Config;
 use gql::Gql;
 use rest::Rest;
-use server::{state::State, warp, Server, ServerState};
+use server::{state::State, warp, Server, ServerState, JWT};
 use warp::Filter;
 
 #[tokio::main]

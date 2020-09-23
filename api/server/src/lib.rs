@@ -1,9 +1,11 @@
 pub mod auth;
+mod jwt;
 pub mod state;
 
 pub use auth::auth;
 pub use hyper;
 use hyper::server::Server as HyperServer;
+pub use jwt::JWT;
 use listenfd::ListenFd;
 pub use state::{with_db, with_state, ServerState};
 use std::convert::Infallible;
