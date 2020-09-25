@@ -183,7 +183,7 @@ async fn get_article_handler(
     user: Option<User>,
     db_pool: PgPool,
 ) -> Result<impl Reply, Rejection> {
-    let current_user_id = user.map(|user| user.id).or(None);
+    let current_user_id = user.map(|user| user.id);
 
     let article = ArticleService::new(&db_pool)
         .get_article(&slug, current_user_id)
@@ -197,7 +197,7 @@ async fn get_articles_handler(
     user: Option<User>,
     db_pool: PgPool,
 ) -> Result<impl Reply, Rejection> {
-    let current_user_id = user.map(|user| user.id).or(None);
+    let current_user_id = user.map(|user| user.id);
 
     let articles = ArticleService::new(&db_pool)
         .get_articles(current_user_id, &params)

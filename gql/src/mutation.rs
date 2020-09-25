@@ -8,22 +8,22 @@ pub struct Mutation;
 impl Mutation {
     async fn register(
         ctx: &Context,
-        input: user::mutations::UserRegisterInput,
+        input: user::mutation::UserRegisterInput,
     ) -> FieldResult<user::User> {
-        user::mutations::register(ctx, input).await
+        user::mutation::register(ctx, input).await
     }
 
     pub async fn login(
         ctx: &Context,
-        input: user::mutations::UserLoginInput,
+        input: user::mutation::UserLoginInput,
     ) -> FieldResult<user::User> {
-        user::mutations::login(ctx, input).await
+        user::mutation::login(ctx, input).await
     }
 
     pub async fn update_user(
         ctx: &Context,
-        input: user::mutations::UserUpdateInput,
+        input: user::mutation::UserUpdateInput,
     ) -> FieldResult<user::User> {
-        user::mutations::update_user(ctx, input).await
+        user::mutation::update_user(ctx, input).await
     }
 }

@@ -97,7 +97,7 @@ async fn get_comments_handler(
     user: Option<User>,
     db_pool: PgPool,
 ) -> Result<impl Reply, Rejection> {
-    let current_user_id = user.map(|user| user.id).or(None);
+    let current_user_id = user.map(|user| user.id);
 
     let comments = CommentService::new(&db_pool)
         .get_comments(&slug, current_user_id)

@@ -2,30 +2,25 @@ use crate::Context;
 use conduit::{UserDto, UserService};
 use juniper::{graphql_object, FieldResult};
 
-pub mod queries {
+pub mod query {
     use super::*;
 
-    pub async fn get_user(ctx: &Context) -> FieldResult<Option<User>> {
-        let user = if let Some(user) = ctx.user.clone() {
-            let state = ctx.state.read().await;
-            let token = state.jwt.sign(&user)?;
+    pub async fn get_user(ctx: &Context) -> FieldResult<User> {
+        let user = ctx.get_user()?.clone();
+        let state = ctx.state.read().await;
+        let token = state.jwt.sign(&user)?;
 
-            Some(User {
-                email: user.email,
-                username: user.username,
-                token,
-                bio: user.bio,
-                image: user.image,
-            })
-        } else {
-            None
-        };
-
-        Ok(user)
+        Ok(User {
+            email: user.email,
+            username: user.username,
+            token,
+            bio: user.bio,
+            image: user.image,
+        })
     }
 }
 
-pub mod mutations {
+pub mod mutation {
     use super::*;
     use conduit::{LoginParams, RegisterParams, UpdateUserParams};
     use juniper::GraphQLInputObject;

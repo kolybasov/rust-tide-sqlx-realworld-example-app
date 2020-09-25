@@ -47,7 +47,7 @@ async fn get_profile_handler(
     user: Option<User>,
     db_pool: PgPool,
 ) -> Result<impl Reply, Rejection> {
-    let current_user_id = user.map(|user| user.id).or(None);
+    let current_user_id = user.map(|user| user.id);
 
     let profile = ProfileService::new(&db_pool)
         .get_profile(&username, current_user_id)
