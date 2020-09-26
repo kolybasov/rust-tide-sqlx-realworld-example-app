@@ -3,9 +3,12 @@ mod context;
 mod mutation;
 mod query;
 mod user;
+mod tag;
+mod comment;
+mod profile;
 
 use context::Context;
-use juniper::{EmptySubscription, RootNode};
+use juniper::{EmptySubscription, GraphQLObject, RootNode};
 use juniper_warp::{graphiql_filter, make_graphql_filter};
 use mutation::Mutation;
 use query::Query;
@@ -31,4 +34,14 @@ type Schema = RootNode<'static, Query, Mutation, EmptySubscription<Context>>;
 
 fn schema() -> Schema {
     Schema::new(Query, Mutation, EmptySubscription::<Context>::new())
+}
+
+#[derive(GraphQLObject)]
+pub struct OperationResult {
+    success: bool,
+}
+impl From<()> for OperationResult {
+    fn from(_: ()) -> Self {
+        OperationResult { success: true }
+    }
 }

@@ -1,4 +1,4 @@
-use crate::{article, user, Context};
+use crate::{article, comment, profile, tag, user, Context};
 use juniper::{graphql_object, FieldResult};
 
 pub struct Query;
@@ -11,5 +11,31 @@ impl Query {
 
     async fn get_article(ctx: &Context, slug: String) -> FieldResult<article::Article> {
         article::query::get_article(ctx, slug).await
+    }
+
+    async fn get_articles(
+        ctx: &Context,
+        input: article::query::GetArticlesInput,
+    ) -> FieldResult<article::ArticleConnection> {
+        article::query::get_articles(ctx, input).await
+    }
+
+    async fn feed(
+        ctx: &Context,
+        input: article::query::GetArticlesInput,
+    ) -> FieldResult<article::ArticleConnection> {
+        article::query::feed(ctx, input).await
+    }
+
+    async fn get_tags(ctx: &Context) -> FieldResult<Vec<String>> {
+        tag::query::get_tags(ctx).await
+    }
+
+    async fn get_comments(ctx: &Context, slug: String) -> FieldResult<comment::CommentConnection> {
+        comment::query::get_comments(ctx, slug).await
+    }
+
+    async fn get_profile(ctx: &Context, username: String) -> FieldResult<profile::Profile> {
+        profile::query::get_profile(ctx, username).await
     }
 }

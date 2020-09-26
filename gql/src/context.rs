@@ -27,4 +27,8 @@ impl Context {
             .as_ref()
             .ok_or_else(|| FieldError::new("Unauthorized", Value::Null))
     }
+
+    pub fn get_user_id(&self) -> Option<i32> {
+        self.user.as_ref().map(|user| user.id)
+    }
 }
