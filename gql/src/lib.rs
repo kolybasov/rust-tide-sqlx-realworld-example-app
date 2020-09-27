@@ -1,15 +1,15 @@
 mod article;
+mod comment;
 mod context;
 mod mutation;
-mod query;
-mod user;
-mod tag;
-mod comment;
 mod profile;
+mod query;
+mod tag;
+mod user;
 
 use context::Context;
 use juniper::{EmptySubscription, GraphQLObject, RootNode};
-use juniper_warp::{graphiql_filter, make_graphql_filter};
+use juniper_warp::{make_graphql_filter, playground_filter};
 use mutation::Mutation;
 use query::Query;
 use server::{warp, ServerState};
@@ -19,12 +19,16 @@ pub struct Gql;
 
 impl Gql {
     pub fn new(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-        let graphql = warp::path!("graphql").and(make_graphql_filter(
-            schema(),
-            Context::extract(state).boxed(),
-        ));
+        let graphql = warp::path!("graphql")
+            .and(warp::post())
+            .and(make_graphql_filter(
+                schema(),
+                Context::extract(state).boxed(),
+            ));
 
-        let graphiql = warp::path!("graphiql").and(graphiql_filter("/graphql", None));
+        let graphiql = warp::path!("graphql")
+            .and(warp::get())
+            .and(playground_filter("/graphql", None));
 
         graphql.or(graphiql)
     }
