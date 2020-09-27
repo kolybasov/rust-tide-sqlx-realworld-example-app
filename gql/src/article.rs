@@ -15,7 +15,7 @@ pub mod query {
             .into())
     }
 
-    #[derive(GraphQLInputObject)]
+    #[derive(GraphQLInputObject, Default)]
     pub struct GetArticlesInput {
         tag: Option<String>,
         author: Option<String>,
@@ -31,24 +31,29 @@ pub mod query {
                 favorited: input.favorited,
                 limit: input.limit.map(|limit| limit as i64),
                 offset: input.offset.map(|offset| offset as i64),
-                feed: Some(false),
+                feed: None,
             }
         }
     }
 
     pub async fn get_articles(
         ctx: &Context,
-        input: GetArticlesInput,
+        input: Option<GetArticlesInput>,
     ) -> FieldResult<ArticleConnection> {
+        let params: GetArticlesParams = input.unwrap_or_else(|| GetArticlesInput::default()).into();
         Ok(ArticleService::new(&ctx.get_pool().await)
-            .get_articles(ctx.get_user_id(), &input.into())
+            .get_articles(ctx.get_user_id(), &params)
             .await?
             .into())
     }
 
-    pub async fn feed(ctx: &Context, input: GetArticlesInput) -> FieldResult<ArticleConnection> {
+    pub async fn feed(
+        ctx: &Context,
+        input: Option<GetArticlesInput>,
+    ) -> FieldResult<ArticleConnection> {
         let user = ctx.get_user()?;
-        let params = GetArticlesParams::from(input).feed(Some(true));
+        let params = GetArticlesParams::from(input.unwrap_or_else(|| GetArticlesInput::default()))
+            .feed(Some(true));
 
         Ok(ArticleService::new(&ctx.get_pool().await)
             .get_articles(Some(user.id), &params)

@@ -200,6 +200,7 @@ where
     }
 }
 
+#[derive(Debug)]
 struct ArticleRow {
     // article
     slug: String,

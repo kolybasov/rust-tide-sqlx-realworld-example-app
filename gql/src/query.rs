@@ -15,14 +15,14 @@ impl Query {
 
     async fn get_articles(
         ctx: &Context,
-        input: article::query::GetArticlesInput,
+        input: Option<article::query::GetArticlesInput>,
     ) -> FieldResult<article::ArticleConnection> {
         article::query::get_articles(ctx, input).await
     }
 
     async fn feed(
         ctx: &Context,
-        input: article::query::GetArticlesInput,
+        input: Option<article::query::GetArticlesInput>,
     ) -> FieldResult<article::ArticleConnection> {
         article::query::feed(ctx, input).await
     }
