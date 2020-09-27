@@ -17,9 +17,3 @@ pub enum ServerError {
 pub type Result<T> = std::result::Result<T, ServerError>;
 
 impl warp::reject::Reject for ServerError {}
-
-impl From<ServerError> for warp::Rejection {
-    fn from(err: ServerError) -> Self {
-        warp::reject::custom(err)
-    }
-}

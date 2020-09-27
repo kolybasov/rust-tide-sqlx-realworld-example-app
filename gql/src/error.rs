@@ -10,9 +10,3 @@ pub enum GqlError {
 }
 
 impl warp::reject::Reject for GqlError {}
-
-impl From<GqlError> for warp::Rejection {
-    fn from(err: GqlError) -> Self {
-        warp::reject::custom(err)
-    }
-}
