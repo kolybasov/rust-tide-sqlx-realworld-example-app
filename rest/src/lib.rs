@@ -5,7 +5,7 @@ mod tag;
 mod user;
 
 use server::{warp, ServerState};
-use warp::{http::Method, Filter, Rejection, Reply};
+use warp::{Filter, Rejection, Reply};
 
 pub struct Rest;
 
@@ -20,13 +20,5 @@ impl Rest {
 
         // Middlewares
         routes
-            .with(
-                warp::cors()
-                    .allow_any_origin()
-                    .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE])
-                    .allow_headers(vec!["content-type", "authorization"]),
-            )
-            .with(warp::compression::brotli())
-            .boxed()
     }
 }
