@@ -11,3 +11,4 @@ chrono = { version = "0.4", features = ["serde"] }
 bcrypt = "0.8"
 slug = "0.1"
 thiserror = "1.0"
+validator = { version = "0.11", features = ["derive"] }

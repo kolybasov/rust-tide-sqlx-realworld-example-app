@@ -2,11 +2,15 @@ use crate::error::{ConduitError, Result};
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::{query_file_as, Executor, Postgres};
+use validator::Validate;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct RegisterParams {
+    #[validate(email)]
     pub email: String,
+    #[validate(length(min = 6))]
     pub password: String,
+    #[validate(length(min = 1))]
     pub username: String,
 }
 
@@ -16,12 +20,17 @@ pub struct LoginParams {
     pub password: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Validate)]
 pub struct UpdateUserParams {
+    #[validate(email)]
     pub email: Option<String>,
+    #[validate(length(min = 1))]
     pub username: Option<String>,
+    #[validate(length(min = 6))]
     pub password: Option<String>,
+    #[validate(url)]
     pub image: Option<String>,
+    #[validate(length(min = 5))]
     pub bio: Option<String>,
 }
 
@@ -41,6 +50,8 @@ where
     where
         F: FnOnce(&User) -> Result<String>,
     {
+        params.validate()?;
+
         let password = bcrypt::hash(&params.password, bcrypt::DEFAULT_COST)?;
         let user = query_file_as!(
             User,
@@ -88,6 +99,8 @@ where
     where
         F: FnOnce(&User) -> Result<String>,
     {
+        params.validate()?;
+
         let token = create_token(&user)?;
         let password = if let Some(new_password) = &params.password {
             let hash = bcrypt::hash(new_password, bcrypt::DEFAULT_COST)?;

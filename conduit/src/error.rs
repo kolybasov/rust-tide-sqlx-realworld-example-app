@@ -6,6 +6,8 @@ pub enum ConduitError {
     SqlxError(#[from] sqlx::Error),
     #[error(transparent)]
     BcryptError(#[from] bcrypt::BcryptError),
+    #[error(transparent)]
+    ValidationError(#[from] validator::ValidationErrors),
     #[error("invalid password")]
     InvalidPassword,
     #[error("cannot create token")]

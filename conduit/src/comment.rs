@@ -3,9 +3,11 @@ use crate::error::Result;
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::{query_file, query_file_as, Executor, Postgres};
+use validator::Validate;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct CreateCommentParams {
+    #[validate(length(min = 1))]
     pub body: String,
 }
 
@@ -63,6 +65,8 @@ where
         slug: &str,
         current_user_id: i32,
     ) -> Result<CommentDto> {
+        params.validate()?;
+
         let comment = query_file!(
             "./src/queries/create_comment.sql",
             slug,

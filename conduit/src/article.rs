@@ -5,6 +5,7 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use slug::slugify;
 use sqlx::{query_file, query_file_as, Executor, Postgres};
+use validator::Validate;
 
 #[derive(Debug, Deserialize, Default)]
 pub struct GetArticlesParams {
@@ -33,19 +34,25 @@ impl GetArticlesParams {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateArticleParams {
+    #[validate(length(min = 3))]
     pub title: String,
+    #[validate(length(min = 3))]
     pub description: String,
+    #[validate(length(min = 10))]
     pub body: String,
     pub tag_list: Option<Vec<String>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct UpdateArticleParams {
+    #[validate(length(min = 3))]
     pub title: Option<String>,
+    #[validate(length(min = 3))]
     pub description: Option<String>,
+    #[validate(length(min = 10))]
     pub body: Option<String>,
 }
 
@@ -132,6 +139,8 @@ where
         params: &CreateArticleParams,
         current_user_id: i32,
     ) -> Result<ArticleDto> {
+        params.validate()?;
+
         let slug = slugify(&params.title);
         let article = query_file!(
             "./src/queries/create_article.sql",
@@ -170,6 +179,8 @@ where
         current_user_id: i32,
         params: &UpdateArticleParams,
     ) -> Result<ArticleDto> {
+        params.validate()?;
+
         let new_slug = if let Some(new_title) = &params.title {
             Some(slugify(new_title))
         } else {
