@@ -3,14 +3,15 @@ use conduit::{
 };
 use serde::{Deserialize, Serialize};
 use server::{auth, warp, with_state, ServerState};
+use std::sync::Arc;
 use warp::{Filter, Rejection, Reply};
 
 pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     // GET /user
     let get_user = warp::path!("user")
         .and(warp::get())
-        .and(with_state(state.clone()))
-        .and(auth(state.clone()))
+        .and(with_state(Arc::clone(&state)))
+        .and(auth(Arc::clone(&state)))
         .and_then(get_user_handler)
         .boxed();
 
@@ -18,8 +19,8 @@ pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = R
     let update_user = warp::path!("user")
         .and(warp::put())
         .and(warp::body::json())
-        .and(with_state(state.clone()))
-        .and(auth(state.clone()))
+        .and(with_state(Arc::clone(&state)))
+        .and(auth(Arc::clone(&state)))
         .and_then(update_user_handler)
         .boxed();
 
@@ -27,7 +28,7 @@ pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = R
     let login = warp::path!("users" / "login")
         .and(warp::post())
         .and(warp::body::json())
-        .and(with_state(state.clone()))
+        .and(with_state(Arc::clone(&state)))
         .and_then(login_handler)
         .boxed();
 
@@ -35,7 +36,7 @@ pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = R
     let register = warp::path!("users")
         .and(warp::post())
         .and(warp::body::json())
-        .and(with_state(state.clone()))
+        .and(with_state(Arc::clone(&state)))
         .and_then(register_handler)
         .boxed();
 

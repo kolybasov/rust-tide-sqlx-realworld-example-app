@@ -154,7 +154,7 @@ where
             let tag_service = TagService::new(self.db);
 
             let tag_list = tag_service
-                .create_tags(&params.tag_list.clone().unwrap())
+                .create_tags(params.tag_list.as_deref().unwrap())
                 .await?;
             tag_service
                 .assign_tags_to_article(&tag_list, article.id)

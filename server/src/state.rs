@@ -22,7 +22,7 @@ impl From<State> for ServerState {
 pub fn with_state(
     state: ServerState,
 ) -> impl Filter<Extract = (ServerState,), Error = Infallible> + Clone {
-    warp::any().map(move || state.clone())
+    warp::any().map(move || Arc::clone(&state))
 }
 
 pub fn with_db(state: ServerState) -> impl Filter<Extract = (PgPool,), Error = Infallible> + Clone {

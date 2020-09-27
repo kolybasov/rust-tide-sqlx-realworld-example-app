@@ -1,30 +1,31 @@
 use conduit::{PgPool, ProfileDto, ProfileService, User};
 use serde::Serialize;
 use server::{auth, warp, with_db, ServerState};
+use std::sync::Arc;
 use warp::{Filter, Rejection, Reply};
 
 pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     // GET /profiles/:username
     let get_profile = warp::path!("profiles" / String)
         .and(warp::get())
-        .and(auth::optional(state.clone()))
-        .and(with_db(state.clone()))
+        .and(auth::optional(Arc::clone(&state)))
+        .and(with_db(Arc::clone(&state)))
         .and_then(get_profile_handler)
         .boxed();
 
     // POST /profiles/:username/follow
     let follow_profile = warp::path!("profiles" / String / "follow")
         .and(warp::post())
-        .and(auth(state.clone()))
-        .and(with_db(state.clone()))
+        .and(auth(Arc::clone(&state)))
+        .and(with_db(Arc::clone(&state)))
         .and_then(follow_profile_handler)
         .boxed();
 
     // DELETE /profiles/:username/follow
     let unfollow_profile = warp::path!("profiles" / String / "follow")
         .and(warp::delete())
-        .and(auth(state.clone()))
-        .and(with_db(state.clone()))
+        .and(auth(Arc::clone(&state)))
+        .and(with_db(Arc::clone(&state)))
         .and_then(unfollow_profile_handler)
         .boxed();
 

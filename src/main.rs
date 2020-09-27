@@ -5,6 +5,7 @@ use config::Config;
 use gql::Gql;
 use rest::Rest;
 use server::{state::State, warp, Server, ServerState, JWT};
+use std::sync::Arc;
 use warp::Filter;
 
 #[tokio::main]
@@ -18,7 +19,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let jwt = JWT::new(&config.jwt_secret);
     let state: ServerState = State { db_pool, jwt }.into();
 
-    let routes = Rest::new(state.clone()).or(Gql::new(state));
+    let routes = Rest::new(Arc::clone(&state)).or(Gql::new(state));
 
     Server::run(&config.url().parse()?, routes).await
 }

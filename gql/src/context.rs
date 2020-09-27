@@ -1,6 +1,7 @@
 use conduit::{PgPool, User};
 use juniper::{FieldError, Value};
 use server::{auth, warp, with_state, ServerState};
+use std::sync::Arc;
 use warp::{Filter, Rejection};
 
 #[derive(Clone)]
@@ -13,7 +14,7 @@ impl juniper::Context for Context {}
 
 impl Context {
     pub fn extract(state: ServerState) -> impl Filter<Extract = (Context,), Error = Rejection> {
-        with_state(state.clone())
+        with_state(Arc::clone(&state))
             .and(auth::optional(state))
             .map(|state: ServerState, user: Option<User>| Context { state, user })
     }

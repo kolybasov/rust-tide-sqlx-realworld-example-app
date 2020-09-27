@@ -1,22 +1,23 @@
 use conduit::{CommentDto, CommentService, CreateCommentParams, PgPool, User};
 use serde::{Deserialize, Serialize};
 use server::{auth, warp, with_db, ServerState};
+use std::sync::Arc;
 use warp::{Filter, Rejection, Reply};
 
 pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     // GET /articles/:slug/comments
     let get_comments = warp::path!("articles" / String / "comments")
         .and(warp::get())
-        .and(auth::optional(state.clone()))
-        .and(with_db(state.clone()))
+        .and(auth::optional(Arc::clone(&state)))
+        .and(with_db(Arc::clone(&state)))
         .and_then(get_comments_handler)
         .boxed();
 
     // DELETE /articles/:slug/comments/:id
     let delete_comment = warp::path!("articles" / String / "comments" / i32)
         .and(warp::delete())
-        .and(auth(state.clone()))
-        .and(with_db(state.clone()))
+        .and(auth(Arc::clone(&state)))
+        .and(with_db(Arc::clone(&state)))
         .and_then(delete_comment_handler)
         .boxed();
 
@@ -24,8 +25,8 @@ pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = R
     let create_comment = warp::path!("articles" / String / "comments")
         .and(warp::post())
         .and(warp::body::json())
-        .and(auth(state.clone()))
-        .and(with_db(state.clone()))
+        .and(auth(Arc::clone(&state)))
+        .and(with_db(Arc::clone(&state)))
         .and_then(create_comment_handler)
         .boxed();
 
