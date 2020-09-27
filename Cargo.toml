@@ -18,6 +18,6 @@ rest = { path = "./rest" }
 gql = { path = "./gql" }
 server = { path = "./server" }
 
-tokio = { version = "0.2.22", features = ["full"] }
+tokio = { version = "0.2", features = ["full"] }
 dotenv = "0.15"
 thiserror = "1.0"
