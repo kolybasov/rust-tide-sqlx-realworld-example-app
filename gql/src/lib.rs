@@ -26,11 +26,11 @@ impl Gql {
                 Context::extract(state).boxed(),
             ));
 
-        let graphiql = warp::path!("graphql")
+        let playground = warp::path!("graphql")
             .and(warp::get())
             .and(playground_filter("/graphql", None));
 
-        graphql.or(graphiql)
+        graphql.or(playground)
     }
 }
 
