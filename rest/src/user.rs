@@ -1,8 +1,9 @@
+use crate::RestError;
 use conduit::{
-    error::Error, LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserService,
+    ConduitError, LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserService,
 };
 use serde::{Deserialize, Serialize};
-use server::{auth, warp, with_state, ServerState};
+use server::{auth, warp, with_state, ServerState, ServerError};
 use std::sync::Arc;
 use warp::{Filter, Rejection, Reply};
 
@@ -56,7 +57,10 @@ impl From<UserDto> for UserResponse {
 
 async fn get_user_handler(state: ServerState, user: User) -> Result<impl Reply, Rejection> {
     let state = state.read().await;
-    let token = state.jwt.sign(&user).map_err(Error::from)?;
+    let token = state
+        .jwt
+        .sign(&user)
+        .map_err(|err| RestError::from(ServerError::from(err)))?;
     let user_dto = UserDto::with_token(user, token);
     Ok(warp::reply::json(&UserResponse::from(user_dto)))
 }
@@ -70,8 +74,14 @@ async fn login_handler(payload: LoginPayload, state: ServerState) -> Result<impl
     let state = state.read().await;
 
     let user = UserService::new(&state.db_pool)
-        .login(&payload.user, |user| state.jwt.sign(user))
-        .await?;
+        .login(&payload.user, |user| {
+            state
+                .jwt
+                .sign(user)
+                .map_err(|_| ConduitError::CreateTokenError)
+        })
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&UserResponse::from(user)))
 }
@@ -88,8 +98,14 @@ async fn register_handler(
     let state = state.read().await;
 
     let user = UserService::new(&state.db_pool)
-        .register(&payload.user, |user| state.jwt.sign(user))
-        .await?;
+        .register(&payload.user, |user| {
+            state
+                .jwt
+                .sign(user)
+                .map_err(|_| ConduitError::CreateTokenError)
+        })
+        .await
+        .map_err(RestError::from)?;
 
     let body = UserResponse::from(user);
     Ok(warp::reply::with_status(
@@ -111,8 +127,14 @@ async fn update_user_handler(
     let state = state.read().await;
 
     let updated_user = UserService::new(&state.db_pool)
-        .update_user(&payload.user, &user, |user| state.jwt.sign(user))
-        .await?;
+        .update_user(&payload.user, &user, |user| {
+            state
+                .jwt
+                .sign(user)
+                .map_err(|_| ConduitError::CreateTokenError)
+        })
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&UserResponse::from(updated_user)))
 }

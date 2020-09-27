@@ -1,4 +1,4 @@
-use crate::error::{Error, Result};
+use crate::error::{ConduitError, Result};
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use sqlx::{query_file_as, Executor, Postgres};
@@ -39,7 +39,7 @@ where
 
     pub async fn register<F>(&self, params: &RegisterParams, create_token: F) -> Result<UserDto>
     where
-        F: FnOnce(&User) -> jsonwebtoken::errors::Result<String>,
+        F: FnOnce(&User) -> Result<String>,
     {
         let password = bcrypt::hash(&params.password, bcrypt::DEFAULT_COST)?;
         let user = query_file_as!(
@@ -65,7 +65,7 @@ where
 
     pub async fn login<F>(&self, params: &LoginParams, create_token: F) -> Result<UserDto>
     where
-        F: FnOnce(&User) -> jsonwebtoken::errors::Result<String>,
+        F: FnOnce(&User) -> Result<String>,
     {
         let user: User = query_file_as!(User, "./src/queries/get_user_by_email.sql", params.email)
             .fetch_one(self.db)
@@ -75,7 +75,7 @@ where
             let token = create_token(&user)?;
             Ok(UserDto::with_token(user, token))
         } else {
-            Err(Error::InvalidPassword)
+            Err(ConduitError::InvalidPassword)
         }
     }
 
@@ -86,7 +86,7 @@ where
         create_token: F,
     ) -> Result<UserDto>
     where
-        F: FnOnce(&User) -> jsonwebtoken::errors::Result<String>,
+        F: FnOnce(&User) -> Result<String>,
     {
         let token = create_token(&user)?;
         let password = if let Some(new_password) = &params.password {

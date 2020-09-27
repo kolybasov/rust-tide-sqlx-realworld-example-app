@@ -1,3 +1,4 @@
+use crate::RestError;
 use conduit::{PgPool, TagService};
 use serde::Serialize;
 use server::{warp, with_db, ServerState};
@@ -17,7 +18,10 @@ pub fn routes(
 }
 
 pub async fn get_tags_handler(db_pool: PgPool) -> Result<impl Reply, Rejection> {
-    let tags = TagService::new(&db_pool).get_tags().await?;
+    let tags = TagService::new(&db_pool)
+        .get_tags()
+        .await
+        .map_err(RestError::from)?;
     Ok(warp::reply::json(&TagsResponse::from(tags)))
 }
 

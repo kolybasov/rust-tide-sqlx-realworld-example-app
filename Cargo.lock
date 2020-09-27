@@ -295,12 +295,10 @@ version = "0.1.0"
 dependencies = [
  "bcrypt",
  "chrono",
- "jsonwebtoken",
  "serde",
  "slug",
  "sqlx",
  "thiserror",
- "warp",
 ]
 
 [[package]]
@@ -647,6 +645,7 @@ dependencies = [
  "juniper",
  "juniper_warp",
  "server",
+ "thiserror",
 ]
 
 [[package]]
@@ -1597,6 +1596,7 @@ dependencies = [
  "conduit",
  "serde",
  "server",
+ "thiserror",
 ]
 
 [[package]]
@@ -1631,12 +1631,12 @@ dependencies = [
 name = "rwa_api"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "conduit",
  "dotenv",
  "gql",
  "rest",
  "server",
+ "thiserror",
  "tokio",
 ]
 
@@ -1755,13 +1755,13 @@ dependencies = [
 name = "server"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "chrono",
  "conduit",
  "hyper",
  "jsonwebtoken",
  "listenfd",
  "serde",
+ "thiserror",
  "tokio",
  "warp",
 ]

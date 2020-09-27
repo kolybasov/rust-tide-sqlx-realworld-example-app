@@ -1,5 +1,6 @@
+use crate::error::{ServerError, Result};
 use crate::state::{with_state, ServerState};
-use conduit::{error::Error, User, UserService};
+use conduit::{User, UserService};
 use std::convert::Infallible;
 use warp::{Filter, Rejection};
 
@@ -25,18 +26,15 @@ fn base(
     warp::header::optional("authorization").and(with_state(state))
 }
 
-async fn get_user_from_header(
-    auth_header_raw: Option<String>,
-    state: ServerState,
-) -> conduit::error::Result<User> {
+async fn get_user_from_header(auth_header_raw: Option<String>, state: ServerState) -> Result<User> {
     let state = state.read().await;
-    let auth_header = auth_header_raw.ok_or(Error::Unauthorized)?;
+    let auth_header = auth_header_raw.ok_or(ServerError::Unauthorized)?;
     let token = auth_header
         .split_whitespace()
         .last()
-        .ok_or(Error::Unauthorized)?;
+        .ok_or(ServerError::Unauthorized)?;
     let claims = state.jwt.verify(token)?;
-    UserService::new(&state.db_pool)
+    Ok(UserService::new(&state.db_pool)
         .get_user_by_id(claims.data.id)
-        .await
+        .await?)
 }

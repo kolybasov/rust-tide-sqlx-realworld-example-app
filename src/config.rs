@@ -1,3 +1,4 @@
+use crate::Error;
 use dotenv::dotenv;
 use std::env;
 
@@ -10,7 +11,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn load() -> Result<Config, anyhow::Error> {
+    pub fn load() -> Result<Config, Error> {
         dotenv()?;
 
         let database_url = env::var("DATABASE_URL")?;

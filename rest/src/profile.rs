@@ -1,3 +1,4 @@
+use crate::RestError;
 use conduit::{PgPool, ProfileDto, ProfileService, User};
 use serde::Serialize;
 use server::{auth, warp, with_db, ServerState};
@@ -52,7 +53,8 @@ async fn get_profile_handler(
 
     let profile = ProfileService::new(&db_pool)
         .get_profile(&username, current_user_id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&ProfileResponse::from(profile)))
 }
@@ -64,7 +66,8 @@ async fn follow_profile_handler(
 ) -> Result<impl Reply, Rejection> {
     let profile = ProfileService::new(&db_pool)
         .follow_profile(&username, user.id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&ProfileResponse::from(profile)))
 }
@@ -76,7 +79,8 @@ async fn unfollow_profile_handler(
 ) -> Result<impl Reply, Rejection> {
     let profile = ProfileService::new(&db_pool)
         .unfollow_profile(&username, user.id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&ProfileResponse::from(profile)))
 }

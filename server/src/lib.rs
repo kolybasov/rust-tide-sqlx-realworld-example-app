@@ -1,7 +1,9 @@
 pub mod auth;
+pub mod error;
 mod jwt;
 pub mod state;
 
+pub use crate::error::ServerError;
 pub use auth::auth;
 pub use hyper;
 use hyper::server::Server as HyperServer;
@@ -19,7 +21,7 @@ impl Server {
     pub async fn run(
         url: &SocketAddr,
         routes: impl Filter<Extract = (impl Reply,), Error = Rejection> + Sync + Send + Clone + 'static,
-    ) -> Result<(), anyhow::Error> {
+    ) -> Result<(), ServerError> {
         let routes = routes
             .with(
                 warp::cors()
@@ -55,7 +57,7 @@ impl Server {
     async fn run_from_listener(
         routes: impl Filter<Extract = (impl Reply,), Error = Rejection> + Sync + Send + Clone + 'static,
         listener: std::net::TcpListener,
-    ) -> Result<(), anyhow::Error> {
+    ) -> Result<(), ServerError> {
         let service = warp::service(routes);
         let make_svc = hyper::service::make_service_fn(|_: _| {
             let service = service.clone();

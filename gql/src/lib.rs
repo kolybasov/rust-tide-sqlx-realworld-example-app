@@ -1,6 +1,7 @@
 mod article;
 mod comment;
 mod context;
+mod error;
 mod mutation;
 mod profile;
 mod query;

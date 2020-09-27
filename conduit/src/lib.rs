@@ -16,6 +16,7 @@ use serde::Deserialize;
 pub use sqlx::{postgres::PgPoolOptions, PgPool};
 pub use tag::TagService;
 pub use user::{LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserService};
+pub use error::ConduitError;
 
 #[derive(Debug, Deserialize)]
 pub struct PageOptions {

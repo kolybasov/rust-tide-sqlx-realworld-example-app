@@ -1,3 +1,4 @@
+use crate::RestError;
 use conduit::{
     ArticleDto, ArticleService, CreateArticleParams, GetArticlesParams, PageOptions, PgPool,
     UpdateArticleParams, User,
@@ -126,7 +127,8 @@ async fn create_article_handler(
 ) -> Result<impl Reply, Rejection> {
     let article = ArticleService::new(&db_pool)
         .create_article(&payload.article, author.id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::with_status(
         warp::reply::json(&ArticleResponse::from(article)),
@@ -141,7 +143,8 @@ async fn delete_article_handler(
 ) -> Result<impl Reply, Rejection> {
     ArticleService::new(&db_pool)
         .delete_article(&slug, user.id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::with_status(
         warp::reply(),
@@ -156,7 +159,8 @@ async fn favorite_article_handler(
 ) -> Result<impl Reply, Rejection> {
     let article = ArticleService::new(&db_pool)
         .favorite_article(&slug, user.id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&ArticleResponse::from(article)))
 }
@@ -174,7 +178,8 @@ async fn feed_handler(
                 .offset(params.offset)
                 .feed(Some(true)),
         )
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&ArticlesResponse::from(articles)))
 }
@@ -188,7 +193,8 @@ async fn get_article_handler(
 
     let article = ArticleService::new(&db_pool)
         .get_article(&slug, current_user_id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&ArticleResponse::from(article)))
 }
@@ -202,7 +208,8 @@ async fn get_articles_handler(
 
     let articles = ArticleService::new(&db_pool)
         .get_articles(current_user_id, &params)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&ArticlesResponse::from(articles)))
 }
@@ -214,7 +221,8 @@ async fn unfavorite_article_handler(
 ) -> Result<impl Reply, Rejection> {
     let article = ArticleService::new(&db_pool)
         .unfavorite_article(&slug, user.id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&ArticleResponse::from(article)))
 }
@@ -232,7 +240,8 @@ async fn update_article_handler(
 ) -> Result<impl Reply, Rejection> {
     let article = ArticleService::new(&db_pool)
         .update_article(&slug, author.id, &payload.article)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&ArticleResponse::from(article)))
 }

@@ -1,3 +1,4 @@
+use crate::RestError;
 use conduit::{CommentDto, CommentService, CreateCommentParams, PgPool, User};
 use serde::{Deserialize, Serialize};
 use server::{auth, warp, with_db, ServerState};
@@ -68,7 +69,8 @@ async fn create_comment_handler(
 ) -> Result<impl Reply, Rejection> {
     let comment = CommentService::new(&db_pool)
         .create_comment(&payload.comment, &slug, author.id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     let body = CommentResponse::from(comment);
     Ok(warp::reply::with_status(
@@ -85,7 +87,8 @@ async fn delete_comment_handler(
 ) -> Result<impl Reply, Rejection> {
     CommentService::new(&db_pool)
         .delete_comment(comment_id, user.id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::with_status(
         warp::reply(),
@@ -102,7 +105,8 @@ async fn get_comments_handler(
 
     let comments = CommentService::new(&db_pool)
         .get_comments(&slug, current_user_id)
-        .await?;
+        .await
+        .map_err(RestError::from)?;
 
     Ok(warp::reply::json(&CommentsResponse::from(comments)))
 }
