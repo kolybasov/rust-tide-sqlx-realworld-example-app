@@ -30,6 +30,7 @@ impl Server {
                     .allow_headers(vec!["content-type", "authorization"]),
             )
             .with(warp::compression::deflate())
+            .with(warp::trace::request())
             .boxed();
 
         let mut listenfd = ListenFd::from_env();

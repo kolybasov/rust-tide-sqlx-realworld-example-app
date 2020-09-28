@@ -21,3 +21,4 @@ server = { path = "./server" }
 tokio = { version = "0.2", features = ["full"] }
 dotenv = "0.15"
 thiserror = "1.0"
+tracing-subscriber = { version = "0.2" } 

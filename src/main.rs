@@ -8,10 +8,13 @@ use gql::Gql;
 use rest::Rest;
 use server::{state::State, warp, Server, ServerState, JWT};
 use std::sync::Arc;
+use tracing_subscriber;
 use warp::Filter;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
+    tracing_subscriber::fmt().init();
+
     let config = Config::load()?;
 
     let db_pool = PgPoolOptions::new()
