@@ -1,0 +1,7 @@
+#! /bin/sh
+
+set -ex
+
+node_env=${1:-development}
+
+NODE_ENV="$node_env" tailwindcss build --config ./web/tailwind.config.js --output ./web/static/tailwind.css

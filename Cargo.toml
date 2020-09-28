@@ -9,7 +9,8 @@ members = [
   "conduit",
   "rest",
   "gql",
-  "server"
+  "server",
+  "web"
 ]
 
 [dependencies]
@@ -17,8 +18,9 @@ conduit = { path = "./conduit" }
 rest = { path = "./rest" }
 gql = { path = "./gql" }
 server = { path = "./server" }
+web = { path = "./web" }
 
 tokio = { version = "0.2", features = ["full"] }
 dotenv = "0.15"
 thiserror = "1.0"
-tracing-subscriber = { version = "0.2" } 
+tracing-subscriber = { version = "0.2" }

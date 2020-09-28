@@ -10,6 +10,7 @@ use server::{state::State, warp, Server, ServerState, JWT};
 use std::sync::Arc;
 use tracing_subscriber;
 use warp::Filter;
+use web::Web;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -25,7 +26,9 @@ async fn main() -> Result<(), Error> {
     let jwt = JWT::new(&config.jwt_secret);
     let state: ServerState = State { db_pool, jwt }.into();
 
-    let routes = Gql::new(Arc::clone(&state)).or(Rest::new(state));
+    let routes = Gql::new(Arc::clone(&state))
+        .or(Rest::new(Arc::clone(&state)))
+        .or(Web::new(Arc::clone(&state)));
 
     Ok(Server::run(&config.url().parse()?, routes).await?)
 }

@@ -1,3 +1,4 @@
 /target
 /certs
+/web/static/tailwind.css
 .env

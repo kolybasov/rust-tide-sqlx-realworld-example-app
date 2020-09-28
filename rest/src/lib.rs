@@ -14,12 +14,14 @@ pub struct Rest;
 
 impl Rest {
     pub fn new(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-        tag::routes(Arc::clone(&state))
+        let rest_routes = tag::routes(Arc::clone(&state))
             .or(comment::routes(Arc::clone(&state)))
             .or(user::routes(Arc::clone(&state)))
             .or(profile::routes(Arc::clone(&state)))
             .or(article::routes(Arc::clone(&state)))
             .recover(handle_rejection)
-            .boxed()
+            .boxed();
+
+        warp::path("api").and(rest_routes)
     }
 }
