@@ -1,14 +1,16 @@
+use crate::error::Result;
 use crate::Context;
 use conduit::{ConduitError, UserDto, UserService};
-use juniper::{graphql_object, FieldResult};
+use juniper::graphql_object;
+use server::ServerError;
 
 pub mod query {
     use super::*;
 
-    pub async fn get_user(ctx: &Context) -> FieldResult<User> {
+    pub async fn get_user(ctx: &Context) -> Result<User> {
         let user = ctx.get_user()?.clone();
         let state = ctx.state.read().await;
-        let token = state.jwt.sign(&user)?;
+        let token = state.jwt.sign(&user).map_err(ServerError::from)?;
 
         Ok(User {
             email: user.email,
@@ -41,7 +43,7 @@ pub mod mutation {
         }
     }
 
-    pub async fn register(ctx: &Context, input: UserRegisterInput) -> FieldResult<User> {
+    pub async fn register(ctx: &Context, input: UserRegisterInput) -> Result<User> {
         let state = ctx.state.read().await;
         Ok(UserService::new(&state.db_pool)
             .register(&input.into(), |user| {
@@ -68,7 +70,7 @@ pub mod mutation {
         }
     }
 
-    pub async fn login(ctx: &Context, input: UserLoginInput) -> FieldResult<User> {
+    pub async fn login(ctx: &Context, input: UserLoginInput) -> Result<User> {
         let state = ctx.state.read().await;
         Ok(UserService::new(&state.db_pool)
             .login(&input.into(), |user| {
@@ -101,7 +103,7 @@ pub mod mutation {
         }
     }
 
-    pub async fn update_user(ctx: &Context, input: UserUpdateInput) -> FieldResult<User> {
+    pub async fn update_user(ctx: &Context, input: UserUpdateInput) -> Result<User> {
         let state = ctx.state.read().await;
         Ok(UserService::new(&state.db_pool)
             .update_user(&input.into(), ctx.get_user()?, |user| {

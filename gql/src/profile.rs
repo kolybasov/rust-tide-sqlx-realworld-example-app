@@ -1,11 +1,11 @@
-use crate::Context;
+use crate::{error::Result, Context};
 use conduit::{ProfileDto, ProfileService};
-use juniper::{graphql_object, FieldResult};
+use juniper::graphql_object;
 
 pub mod query {
     use super::*;
 
-    pub async fn get_profile(ctx: &Context, username: String) -> FieldResult<Profile> {
+    pub async fn get_profile(ctx: &Context, username: String) -> Result<Profile> {
         Ok(ProfileService::new(&ctx.get_pool().await)
             .get_profile(&username, ctx.get_user_id())
             .await?
@@ -16,14 +16,14 @@ pub mod query {
 pub mod mutation {
     use super::*;
 
-    pub async fn follow_profile(ctx: &Context, username: String) -> FieldResult<Profile> {
+    pub async fn follow_profile(ctx: &Context, username: String) -> Result<Profile> {
         Ok(ProfileService::new(&ctx.get_pool().await)
             .follow_profile(&username, ctx.get_user()?.id)
             .await?
             .into())
     }
 
-    pub async fn unfollow_profile(ctx: &Context, username: String) -> FieldResult<Profile> {
+    pub async fn unfollow_profile(ctx: &Context, username: String) -> Result<Profile> {
         Ok(ProfileService::new(&ctx.get_pool().await)
             .unfollow_profile(&username, ctx.get_user()?.id)
             .await?

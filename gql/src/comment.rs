@@ -1,12 +1,12 @@
-use crate::{profile::Profile, Context, OperationResult};
+use crate::{error::Result, profile::Profile, Context, OperationResult};
 use chrono::{DateTime, Utc};
 use conduit::{chrono, CommentDto, CommentService, CreateCommentParams};
-use juniper::{graphql_object, FieldResult, GraphQLInputObject};
+use juniper::{graphql_object, GraphQLInputObject};
 
 pub mod query {
     use super::*;
 
-    pub async fn get_comments(ctx: &Context, slug: String) -> FieldResult<CommentConnection> {
+    pub async fn get_comments(ctx: &Context, slug: String) -> Result<CommentConnection> {
         Ok(CommentService::new(&ctx.get_pool().await)
             .get_comments(&slug, ctx.get_user_id())
             .await?
@@ -31,14 +31,14 @@ pub mod mutation {
         ctx: &Context,
         slug: String,
         input: CreateCommentInput,
-    ) -> FieldResult<Comment> {
+    ) -> Result<Comment> {
         Ok(CommentService::new(&ctx.get_pool().await)
             .create_comment(&input.into(), &slug, ctx.get_user()?.id)
             .await?
             .into())
     }
 
-    pub async fn delete_comment(ctx: &Context, comment_id: i32) -> FieldResult<OperationResult> {
+    pub async fn delete_comment(ctx: &Context, comment_id: i32) -> Result<OperationResult> {
         Ok(CommentService::new(&ctx.get_pool().await)
             .delete_comment(comment_id, ctx.get_user()?.id)
             .await?

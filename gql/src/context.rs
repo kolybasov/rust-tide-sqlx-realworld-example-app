@@ -1,6 +1,6 @@
+use crate::error::Result;
 use conduit::{PgPool, User};
-use juniper::{FieldError, Value};
-use server::{auth, warp, with_state, ServerState};
+use server::{auth, warp, with_state, ServerError, ServerState};
 use std::sync::Arc;
 use warp::{Filter, Rejection};
 
@@ -23,10 +23,11 @@ impl Context {
         self.state.read().await.db_pool.clone()
     }
 
-    pub fn get_user(&self) -> Result<&User, FieldError> {
-        self.user
+    pub fn get_user(&self) -> Result<&User> {
+        Ok(self
+            .user
             .as_ref()
-            .ok_or_else(|| FieldError::new("Unauthorized", Value::Null))
+            .ok_or_else(|| ServerError::Unauthorized)?)
     }
 
     pub fn get_user_id(&self) -> Option<i32> {

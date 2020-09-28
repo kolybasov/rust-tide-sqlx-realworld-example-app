@@ -1,14 +1,14 @@
-use crate::{profile::Profile, Context, OperationResult};
+use crate::{error::Result, profile::Profile, Context, OperationResult};
 use chrono::{DateTime, Utc};
 use conduit::{
     chrono, ArticleDto, ArticleService, CreateArticleParams, GetArticlesParams, UpdateArticleParams,
 };
-use juniper::{graphql_object, FieldResult, GraphQLInputObject};
+use juniper::{graphql_object, GraphQLInputObject};
 
 pub mod query {
     use super::*;
 
-    pub async fn get_article(ctx: &Context, slug: String) -> FieldResult<Article> {
+    pub async fn get_article(ctx: &Context, slug: String) -> Result<Article> {
         Ok(ArticleService::new(&ctx.get_pool().await)
             .get_article(&slug, ctx.get_user_id())
             .await?
@@ -39,7 +39,7 @@ pub mod query {
     pub async fn get_articles(
         ctx: &Context,
         input: Option<GetArticlesInput>,
-    ) -> FieldResult<ArticleConnection> {
+    ) -> Result<ArticleConnection> {
         let params: GetArticlesParams = input.unwrap_or_else(|| GetArticlesInput::default()).into();
         Ok(ArticleService::new(&ctx.get_pool().await)
             .get_articles(ctx.get_user_id(), &params)
@@ -47,10 +47,7 @@ pub mod query {
             .into())
     }
 
-    pub async fn feed(
-        ctx: &Context,
-        input: Option<GetArticlesInput>,
-    ) -> FieldResult<ArticleConnection> {
+    pub async fn feed(ctx: &Context, input: Option<GetArticlesInput>) -> Result<ArticleConnection> {
         let user = ctx.get_user()?;
         let params = GetArticlesParams::from(input.unwrap_or_else(|| GetArticlesInput::default()))
             .feed(Some(true));
@@ -83,7 +80,7 @@ pub mod mutation {
         }
     }
 
-    pub async fn create_article(ctx: &Context, input: CreateArticleInput) -> FieldResult<Article> {
+    pub async fn create_article(ctx: &Context, input: CreateArticleInput) -> Result<Article> {
         let user = ctx.get_user()?;
         Ok(ArticleService::new(&ctx.get_pool().await)
             .create_article(&input.into(), user.id)
@@ -111,7 +108,7 @@ pub mod mutation {
         ctx: &Context,
         slug: String,
         input: UpdateArticleInput,
-    ) -> FieldResult<Article> {
+    ) -> Result<Article> {
         let user = ctx.get_user()?;
         Ok(ArticleService::new(&ctx.get_pool().await)
             .update_article(&slug, user.id, &input.into())
@@ -119,21 +116,21 @@ pub mod mutation {
             .into())
     }
 
-    pub async fn delete_article(ctx: &Context, slug: String) -> FieldResult<OperationResult> {
+    pub async fn delete_article(ctx: &Context, slug: String) -> Result<OperationResult> {
         Ok(ArticleService::new(&ctx.get_pool().await)
             .delete_article(&slug, ctx.get_user()?.id)
             .await?
             .into())
     }
 
-    pub async fn favorite_article(ctx: &Context, slug: String) -> FieldResult<Article> {
+    pub async fn favorite_article(ctx: &Context, slug: String) -> Result<Article> {
         Ok(ArticleService::new(&ctx.get_pool().await)
             .favorite_article(&slug, ctx.get_user()?.id)
             .await?
             .into())
     }
 
-    pub async fn unfavorite_article(ctx: &Context, slug: String) -> FieldResult<Article> {
+    pub async fn unfavorite_article(ctx: &Context, slug: String) -> Result<Article> {
         Ok(ArticleService::new(&ctx.get_pool().await)
             .unfavorite_article(&slug, ctx.get_user()?.id)
             .await?
