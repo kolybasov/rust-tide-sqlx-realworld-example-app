@@ -22,7 +22,7 @@ async fn main() -> Result<(), Error> {
     let jwt = JWT::new(&config.jwt_secret);
     let state: ServerState = State { db_pool, jwt }.into();
 
-    let routes = Rest::new(Arc::clone(&state)).or(Gql::new(state));
+    let routes = Gql::new(Arc::clone(&state)).or(Rest::new(state));
 
     Ok(Server::run(&config.url().parse()?, routes).await?)
 }

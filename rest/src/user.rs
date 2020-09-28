@@ -3,7 +3,7 @@ use conduit::{
     ConduitError, LoginParams, RegisterParams, UpdateUserParams, User, UserDto, UserService,
 };
 use serde::{Deserialize, Serialize};
-use server::{auth, warp, with_state, ServerState, ServerError};
+use server::{auth, warp, with_state, ServerError, ServerState};
 use std::sync::Arc;
 use warp::{Filter, Rejection, Reply};
 

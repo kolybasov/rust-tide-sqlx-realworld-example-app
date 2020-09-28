@@ -1,4 +1,4 @@
-use crate::error::{ServerError, Result};
+use crate::error::{Result, ServerError};
 use crate::state::{with_state, ServerState};
 use conduit::{User, UserService};
 use std::convert::Infallible;
