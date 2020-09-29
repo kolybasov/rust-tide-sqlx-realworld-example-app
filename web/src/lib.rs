@@ -1,9 +1,8 @@
 mod article;
 mod error;
-mod render;
 
+use askama::Template;
 pub use error::WebError;
-pub use render::render;
 use server::{warp, ServerState};
 use std::sync::Arc;
 use warp::{Filter, Rejection, Reply};
@@ -13,8 +12,12 @@ pub struct Web;
 impl Web {
     pub fn new(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
         let static_dir = warp::path("static").and(warp::fs::dir("web/static"));
-        let articles = article::routes(Arc::clone(&state));
 
-        static_dir.or(articles)
+        static_dir.or(article::routes(Arc::clone(&state)))
     }
+}
+
+pub fn render<T: Template>(template: &T) -> Result<impl Reply, Rejection> {
+    let html = template.render().map_err(WebError::from)?;
+    Ok(warp::reply::html(html))
 }
