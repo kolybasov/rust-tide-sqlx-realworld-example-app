@@ -83,7 +83,12 @@ async fn login_handler(payload: LoginPayload, state: ServerState) -> Result<impl
         .await
         .map_err(RestError::from)?;
 
-    Ok(warp::reply::json(&UserResponse::from(user)))
+    let set_cookie = auth::set_cookie_token(&user.token);
+    Ok(warp::reply::with_header(
+        warp::reply::json(&UserResponse::from(user)),
+        warp::http::header::SET_COOKIE,
+        set_cookie,
+    ))
 }
 
 #[derive(Debug, Deserialize)]
@@ -107,10 +112,12 @@ async fn register_handler(
         .await
         .map_err(RestError::from)?;
 
-    let body = UserResponse::from(user);
-    Ok(warp::reply::with_status(
-        warp::reply::json(&body),
-        warp::http::StatusCode::CREATED,
+    let set_cookie = auth::set_cookie_token(&user.token);
+    let json = warp::reply::json(&UserResponse::from(user));
+    Ok(warp::reply::with_header(
+        warp::reply::with_status(json, warp::http::StatusCode::CREATED),
+        warp::http::header::SET_COOKIE,
+        set_cookie,
     ))
 }
 

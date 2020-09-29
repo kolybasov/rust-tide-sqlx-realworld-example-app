@@ -1,8 +1,9 @@
 use crate::error::Result;
 use conduit::{PgPool, User};
 use server::{auth, warp, with_state, ServerError, ServerState};
+use std::convert::Infallible;
 use std::sync::Arc;
-use warp::{Filter, Rejection};
+use warp::Filter;
 
 #[derive(Clone)]
 pub struct Context {
@@ -13,7 +14,7 @@ pub struct Context {
 impl juniper::Context for Context {}
 
 impl Context {
-    pub fn extract(state: ServerState) -> impl Filter<Extract = (Context,), Error = Rejection> {
+    pub fn extract(state: ServerState) -> impl Filter<Extract = (Context,), Error = Infallible> {
         with_state(Arc::clone(&state))
             .and(auth::optional(state))
             .map(|state: ServerState, user: Option<User>| Context { state, user })
