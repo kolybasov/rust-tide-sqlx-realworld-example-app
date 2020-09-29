@@ -3,13 +3,13 @@ module.exports = {
     removeDeprecatedGapUtilities: true,
     purgeLayersByDefault: true,
   },
-  purge: ["./templates/**/*.html"],
+  purge: ["./web/templates/**/*.html", "./web/templates/**/*.svg"],
   theme: {
     extend: {},
   },
   variants: {
-    margin: ['responsive', 'first'],
-    padding: ['responsive', 'first']
+    margin: ["responsive", "first"],
+    padding: ["responsive", "first"],
   },
   plugins: [],
-}
+};

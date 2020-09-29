@@ -6,7 +6,9 @@ use std::sync::Arc;
 use warp::{Filter, Rejection, Reply};
 
 pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    let home = warp::get()
+    // GET /
+    let home = warp::path::end()
+        .and(warp::get())
         .and(warp::query())
         .and(with_db(Arc::clone(&state)))
         .and(auth::optional(Arc::clone(&state)))
@@ -17,7 +19,7 @@ pub fn routes(state: ServerState) -> impl Filter<Extract = impl Reply, Error = R
 
 #[derive(Template)]
 #[template(path = "home.html")]
-struct HelloTemplate {
+struct HomeTemplate {
     tags: Vec<String>,
     user: Option<User>,
     articles: Vec<ArticleDto>,
@@ -37,7 +39,7 @@ async fn home_handler(
         .await
         .map_err(WebError::from)?;
 
-    render(&HelloTemplate {
+    render(&HomeTemplate {
         tags,
         user,
         articles,

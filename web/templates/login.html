@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<main class="container mx-auto mt-8 flex flex-col text-center">
+  <h1 class="text-4xl">Sign In</h1>
+  <a class="text-green-600 hover:text-green-800 hover:underline" href="/register">Need an account?</a>
+  <form class="mx-auto max-w-lg mt-8 text-right w-full" method="POST" action="/api/users/login">
+    <input class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded text-lg focus:border-blue-500" name="email" type="email" placeholder="Email" />
+    <input class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded mt-4 text-lg focus:border-blue-500" name="password" type="password" placeholder="Password" />
+
+    <button class="inline-block mt-4 text-lg bg-green-600 text-white rounded py-3 px-6" type="submit">Sign In</submit>
+  </form>
+</main>
+{% endblock %}

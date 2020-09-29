@@ -1,5 +1,6 @@
 mod article;
 mod error;
+mod user;
 
 use askama::Template;
 pub use error::WebError;
@@ -13,7 +14,9 @@ impl Web {
     pub fn new(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
         let static_dir = warp::path("static").and(warp::fs::dir("web/static"));
 
-        static_dir.or(article::routes(Arc::clone(&state)))
+        static_dir
+            .or(article::routes(Arc::clone(&state)))
+            .or(user::routes(Arc::clone(&state)))
     }
 }
 
