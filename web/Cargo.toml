@@ -8,7 +8,5 @@ edition = "2018"
 conduit = { path = "../conduit" }
 server = { path = "../server" }
 
-# juniper = { git = "https://github.com/graphql-rust/juniper", branch = "master" }
-# juniper_warp = { git = "https://github.com/graphql-rust/juniper", branch = "master" }
-# thiserror = "1.0"
+thiserror = "1.0"
 askama = "0.8"
