@@ -3,6 +3,11 @@
     <head>
         <meta charset="UTF-8" />
         <title>Conduit</title>
+
+        <link rel="preload" href="/static/tailwind.css" as="style" />
+        <link rel="preload" href="/static/main.js" as="script" />
+        {% block preload %}{% endblock %}
+
         <link rel="icon" href="/static/favicon.png" type="image/png" />
         <link rel="stylesheet" href="/static/tailwind.css" type="text/css" />
     </head>
@@ -27,6 +32,10 @@
             </div>
         </header>
 
+        <div id="errors"></div>
         {% block content %}{% endblock %}
+
+        <script type="text/javascript" src="/static/main.js"></script>
+        {% block scripts %}{% endblock %}
     </body>
 </html>

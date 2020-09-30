@@ -10,6 +10,8 @@ module.exports = {
     variants: {
         margin: ['responsive', 'first'],
         padding: ['responsive', 'first'],
+        opacity: ['disabled'],
+        cursor: ['disabled'],
     },
     plugins: [],
 };

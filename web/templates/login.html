@@ -5,7 +5,12 @@
 <main class="container mx-auto mt-8 flex flex-col text-center">
     <h1 class="text-4xl">Sign In</h1>
     <a class="text-green-600 hover:text-green-800 hover:underline" href="/register">Need an account?</a>
-    <form class="mx-auto max-w-lg mt-8 text-right w-full" method="POST" action="/api/users/login">
+    <form
+        class="mx-auto max-w-lg mt-8 text-right w-full"
+        method="POST"
+        action="/api/users/login"
+        onsubmit="login(this);return false;"
+    >
         <input
             class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded text-lg focus:border-blue-500"
             name="email"
@@ -19,9 +24,23 @@
             placeholder="Password"
         />
 
-        <button class="inline-block mt-4 text-lg bg-green-600 text-white rounded py-3 px-6" type="submit">
+        <button
+            class="inline-block mt-4 text-lg bg-green-600 text-white rounded py-3 px-6 disabled:opacity-75 disabled:cursor-not-allowed"
+            type="submit"
+        >
             Sign In
         </button>
+
+        <div class="text-left mt-4" id="login-errors"></div>
     </form>
 </main>
+{% endblock %}
+
+<!-- prettier ignore -->
+{% block preload %}
+<link rel="preload" href="/static/login.js" as="script" />
+{% endblock %}
+<!-- prettier ignore -->
+{% block scripts %}
+<script type="text/javascript" src="/static/login.js"></script>
 {% endblock %}
