@@ -1,33 +1,35 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Conduit</title>
-    <link rel="icon" href="/static/favicon.png" type="image/png" />
-    <link rel="stylesheet" href="/static/tailwind.css" type="text/css" />
-  </head>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Conduit</title>
+        <link rel="icon" href="/static/favicon.png" type="image/png" />
+        <link rel="stylesheet" href="/static/tailwind.css" type="text/css" />
+    </head>
 
-  <body>
-    <header class="px-2 py-3">
-      <div class="container mx-auto flex conten-between">
-        <div class="flex-grow">
-          <a class="text-green-600 text-2xl font-bold" href="/">conduit</a>
-        </div>
-        <nav class="flex items-center justify-between">
-          <a class="text-gray-600 hover:text-gray-800 px-1" href="/">Home</a>
-          {% match user %} {% when None %}
-          <a class="text-gray-600 hover:text-gray-800 px-1" href="/login">Sign in</a>
-          <a class="text-gray-600 hover:text-gray-800 px-1" href="/register">Sign up</a>
+    <body>
+        <header class="px-2 py-3">
+            <div class="container mx-auto flex conten-between">
+                <div class="flex-grow">
+                    <a class="text-green-600 text-2xl font-bold" href="/">conduit</a>
+                </div>
+                <nav class="flex items-center justify-between">
+                    <a class="text-gray-600 hover:text-gray-800 px-1" href="/">Home</a>
+                    {% match user %}
+                    <!-- prettier ignore -->
+                    {% when None %}
+                    <a class="text-gray-600 hover:text-gray-800 px-1" href="/login">Sign in</a>
+                    <a class="text-gray-600 hover:text-gray-800 px-1" href="/register">Sign up</a>
+                    <!-- prettier ignore -->
+                    {% when Some with (user) %}
+                    <a class="text-gray-600 hover:text-gray-800 px-1" href="/editor">New Post</a>
+                    <a class="text-gray-600 hover:text-gray-800 px-1" href="/settings">Settings</a>
+                    <a class="text-gray-600 hover:text-gray-800 px-1" href="/@{{user.username}}">{{user.username}}</a>
+                    {% endmatch %}
+                </nav>
+            </div>
+        </header>
 
-          {% when Some with (user) %}
-          <a class="text-gray-600 hover:text-gray-800 px-1" href="/editor">New Post</a>
-          <a class="text-gray-600 hover:text-gray-800 px-1" href="/settings">Settings</a>
-          <a class="text-gray-600 hover:text-gray-800 px-1" href="/@{{user.username}}">{{user.username}}</a>
-          {% endmatch %}
-        </nav>
-      </div>
-    </header>
-
-    {% block content %}{% endblock %}
-  </body>
+        {% block content %}{% endblock %}
+    </body>
 </html>

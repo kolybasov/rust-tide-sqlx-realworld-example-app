@@ -1,60 +1,66 @@
-{% extends "layout.html" %} 
+{% extends "layout.html" %}
 
+<!-- prettier ignore -->
 {% block content %}
 <main>
-  <section
-    class="col-span-2 bg-green-600 text-white flex flex-col justify-center items-center p-8 align-middle"
-  >
-    <h1 class="font-bold text-5xl">conduit</h1>
-    <h2 class="text-2xl">A place to share your knowledge</h2>
-  </section>
+    <section class="col-span-2 bg-green-600 text-white flex flex-col justify-center items-center p-8 align-middle">
+        <h1 class="font-bold text-5xl">conduit</h1>
+        <h2 class="text-2xl">A place to share your knowledge</h2>
+    </section>
 
-  <div class="container mx-auto mt-8 flex content-between">
-    <article class="flex-grow px-2 mr-2">
-      {% for article in articles %}
-        <section class="mt-12 first:mt-0">
-          <div class="flex items-center">
-            <img 
-              class="block rounded-full bg-gray-200 w-10 h-10" 
-              src="{% match article.author.image %}
-              {% when Some with (image) %}
-                {{image}}
-              {% when None %}
-                /static/default-avatar.svg
-              {% endmatch %}" 
-            />
-            <div class="flex flex-col flex-grow ml-2">
-              <a class="text-green-600 hover:text-green-800 hover:underline" href="/@{{article.author.username}}">{{article.author.username}}</a>
-              <span class="text-gray-600 text-sm">{{article.created_at}}</span>
+    <div class="container mx-auto mt-8 flex content-between">
+        <article class="flex-grow px-2 mr-2">
+            {% for article in articles %}
+            <section class="mt-12 first:mt-0">
+                <div class="flex items-center">
+                    <img
+                        class="block rounded-full bg-gray-200 w-10 h-10"
+                        src="{% match article.author.image %}
+                             {% when Some with (image) %}
+                                 {{image}}
+                             {% when None %}
+                                 /static/default-avatar.svg
+                             {% endmatch %}"
+                    />
+                    <div class="flex flex-col flex-grow ml-2">
+                        <a
+                            class="text-green-600 hover:text-green-800 hover:underline"
+                            href="/@{{article.author.username}}"
+                        >
+                            {{article.author.username}}
+                        </a>
+                        <span class="text-gray-600 text-sm">{{article.created_at}}</span>
+                    </div>
+                    <button
+                        class="border border-green-600 text-green-600 rounded-sm py-1 px-2 hover:bg-green-600 hover:text-white flex items-center"
+                    >
+                        <span class="inline-block w-4 h-4 fill-current">{% include "icons/heart.svg" %}</span>
+                        <span class="ml-1">{{article.favorites_count}}</span>
+                    </button>
+                </div>
+
+                <a class="block mt-2" href="/article/{{article.slug}}">
+                    <h2 class="text-gray-900 font-bold text-2xl">{{article.title}}</h2>
+                    <p class="text-gray-600">{{article.description}}</p>
+                    <p class="mt-2 text-gray-600">Read more...</p>
+                </a>
+            </section>
+            {% endfor %}
+        </article>
+
+        <aside class="bg-gray-200 rounded p-2">
+            <h3 class="text-base">Popular Tags</h3>
+            <div class="mt-2">
+                {% for tag in tags %}
+                <a
+                    class="text-white text-base bg-gray-600 rounded-full inline-block px-3 pb-1 ml-1 first:ml-0 hover:bg-gray-800 focus:bg-gray-800"
+                    href="/?tag={{tag}}"
+                >
+                    {{tag}}
+                </a>
+                {% endfor %}
             </div>
-            <button class="border border-green-600 text-green-600 rounded-sm py-1 px-2 hover:bg-green-600 hover:text-white flex items-center">
-              <span class="inline-block w-4 h-4 fill-current">{% include "icons/heart.svg" %}</span>
-              <span class="ml-1">{{article.favorites_count}}</span>
-            </button>
-          </div>
-
-          <a class="block mt-2" href="/article/{{article.slug}}">
-            <h2 class="text-gray-900 font-bold text-2xl">{{article.title}}</h2>
-            <p class="text-gray-600">{{article.description}}</p>
-            <p class="mt-2 text-gray-600">Read more...</p>
-          </a>
-        </section>
-      {% endfor %}
-    </article>
-
-    <aside class="bg-gray-200 rounded p-2">
-      <h3 class="text-base">Popular Tags</h3>
-      <div class="mt-2">
-        {% for tag in tags %}
-        <a
-          class="text-white text-base bg-gray-600 rounded-full inline-block px-3 pb-1 ml-1 first:ml-0 hover:bg-gray-800 focus:bg-gray-800"
-          href="/?tag={{tag}}"
-        >
-          {{tag}}
-        </a>
-        {% endfor %}
-      </div>
-    </aside>
-  </div>
+        </aside>
+    </div>
 </main>
 {% endblock %}
