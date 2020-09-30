@@ -51,14 +51,14 @@
         <aside class="bg-gray-200 rounded p-2">
             <h3 class="text-base">Popular Tags</h3>
             <div class="mt-2">
-                {% for tag in tags %}
+                {%- for tag in tags -%}
                 <a
                     class="text-white text-base bg-gray-600 rounded-full inline-block px-3 pb-1 ml-1 first:ml-0 hover:bg-gray-800 focus:bg-gray-800"
                     href="/?tag={{tag}}"
                 >
                     {{tag}}
                 </a>
-                {% endfor %}
+                {%- endfor -%}
             </div>
         </aside>
     </div>

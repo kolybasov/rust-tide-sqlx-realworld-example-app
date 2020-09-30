@@ -15,12 +15,9 @@
                 </div>
                 <nav class="flex items-center justify-between">
                     <a class="text-gray-600 hover:text-gray-800 px-1" href="/">Home</a>
-                    {% match user %}
-                    <!-- prettier ignore -->
-                    {% when None %}
+                    {% match user %} {% when None %}
                     <a class="text-gray-600 hover:text-gray-800 px-1" href="/login">Sign in</a>
                     <a class="text-gray-600 hover:text-gray-800 px-1" href="/register">Sign up</a>
-                    <!-- prettier ignore -->
                     {% when Some with (user) %}
                     <a class="text-gray-600 hover:text-gray-800 px-1" href="/editor">New Post</a>
                     <a class="text-gray-600 hover:text-gray-800 px-1" href="/settings">Settings</a>
