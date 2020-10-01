@@ -38,7 +38,7 @@ function renderErrors(errorsNode, errors) {
     errorsNode.appendChild(errorsList);
 }
 
-function fetchForm(form) {
+function fetchForm(form, options = {}) {
     return (getBody) => {
         let originalText;
         let submitBtn = form.getElementsByTagName('button')[0];
@@ -48,13 +48,14 @@ function fetchForm(form) {
             submitBtn.textContent = 'Loading...';
         }
 
-        return fetch(form.action, {
-            method: form.method,
+        return fetch(options.action || form.action, {
+            ...options,
+            method: options.method || form.method,
             headers: {
                 'content-type': 'application/json',
                 accept: 'application/json',
             },
-            body: JSON.stringify(getBody(form)),
+            body: getBody && JSON.stringify(getBody(form)),
         }).then((res) => {
             if (submitBtn) {
                 submitBtn.disabled = false;
@@ -62,6 +63,7 @@ function fetchForm(form) {
             }
 
             if (res.ok) {
+                if (res.status === 204) return;
                 return res.json();
             } else {
                 let err = new Error(res.statusText);

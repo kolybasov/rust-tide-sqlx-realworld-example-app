@@ -13,7 +13,7 @@ pub use state::{with_db, with_state, ServerState};
 use std::convert::Infallible;
 use std::net::SocketAddr;
 pub use warp;
-use warp::{http::Method, Filter, Rejection, Reply};
+use warp::{http::Method, reply::Response, Filter, Rejection, Reply};
 
 pub struct Server;
 
@@ -67,5 +67,27 @@ impl Server {
 
         let server = HyperServer::from_tcp(listener)?;
         Ok(server.serve(make_svc).await?)
+    }
+}
+
+pub enum Either<T, U>
+where
+    T: Reply,
+    U: Reply,
+{
+    Left(T),
+    Right(U),
+}
+
+impl<T, U> Reply for Either<T, U>
+where
+    T: Reply,
+    U: Reply,
+{
+    fn into_response(self) -> Response {
+        match self {
+            Either::Left(reply) => reply.into_response(),
+            Either::Right(reply) => reply.into_response(),
+        }
     }
 }

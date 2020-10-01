@@ -10,3 +10,5 @@ server = { path = "../server" }
 
 thiserror = "1.0"
 askama = "0.8"
+futures = "0.3"
+pulldown-cmark = "0.8"

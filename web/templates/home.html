@@ -13,17 +13,7 @@
             {% for article in articles %}
             <section class="mt-12 first:mt-0">
                 <div class="flex items-center">
-                    {% let avatar_src = article.author.image.as_deref().unwrap_or("/static/default-avatar.svg") %}
-                    <img class="block rounded-full bg-gray-200 w-10 h-10" src="{{avatar_src}}" />
-                    <div class="flex flex-col flex-grow ml-2">
-                        <a
-                            class="text-green-600 hover:text-green-800 hover:underline"
-                            href="/@{{article.author.username}}"
-                        >
-                            {{article.author.username}}
-                        </a>
-                        <span class="text-gray-600 text-sm">{{article.created_at}}</span>
-                    </div>
+                    {% include "_article_meta.html" %}
                     <button
                         class="border border-green-600 text-green-600 rounded-sm py-1 px-2 hover:bg-green-600 hover:text-white flex items-center"
                     >

@@ -15,6 +15,7 @@ function login(form) {
             window.location.href = '/';
         })
         .catch((err) => {
+            form.elements.password.value = '';
             err.res.json().then((json) => {
                 renderErrors(errorsNode, { error: [json.message] });
             });

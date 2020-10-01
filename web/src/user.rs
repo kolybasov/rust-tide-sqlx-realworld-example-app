@@ -1,7 +1,7 @@
 use crate::render;
 use askama::Template;
 use conduit::User;
-use server::{auth, warp, ServerState};
+use server::{auth, warp, Either, ServerState};
 use std::sync::Arc;
 use warp::{http, Filter, Rejection, Reply};
 
@@ -21,12 +21,10 @@ struct LoginTemplate {
     user: Option<User>,
 }
 
-pub async fn login_handler(user: Option<User>) -> Result<Box<dyn Reply>, Rejection> {
-    if let Some(_) = user {
-        Ok(Box::new(warp::redirect::temporary(http::Uri::from_static(
-            "/",
-        ))))
+pub async fn login_handler(user: Option<User>) -> Result<impl Reply, Rejection> {
+    Ok(if let Some(_) = user {
+        Either::Left(warp::redirect::temporary(http::Uri::from_static("/")))
     } else {
-        Ok(Box::new(render(&LoginTemplate::default())?))
-    }
+        Either::Right(render(&LoginTemplate::default())?)
+    })
 }

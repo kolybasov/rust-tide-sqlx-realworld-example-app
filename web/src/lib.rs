@@ -1,5 +1,6 @@
 mod article;
 mod error;
+mod filters;
 mod user;
 
 use askama::Template;
