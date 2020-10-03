@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+<!-- prettier ignore -->
+{% block content %}
+<main>
+    <form
+        class="mx-auto max-w-2xl mt-8 text-right w-full"
+        method="{{self.method()}}"
+        action="/api/articles{{self.slug()}}"
+        onsubmit="createOrUpdateArticle(this,{method:'{{self.method()}}'});return false;"
+    >
+        <input
+            class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded text-lg focus:border-blue-500"
+            name="title"
+            type="text"
+            placeholder="Article Title"
+            value="{{self.title()}}"
+        />
+        <input
+            class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded text-lg focus:border-blue-500 mt-4"
+            name="description"
+            type="text"
+            placeholder="What's this article about?"
+            value="{{self.description()}}"
+        />
+        <textarea
+            class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded text-lg focus:border-blue-500 mt-4"
+            name="body"
+            placeholder="Write your article(in markdown)"
+            rows="6"
+        >
+            {{-self.body()-}}
+        </textarea>
+        {% if article.is_none() %}
+        <input
+            class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded text-lg focus:border-blue-500 mt-4"
+            name="tags"
+            type="text"
+            placeholder="Enter tags"
+        />
+        {% endif %}
+
+        <button
+            class="inline-block mt-4 text-lg bg-green-600 text-white rounded py-3 px-6 disabled:opacity-75 disabled:cursor-not-allowed"
+            type="submit"
+        >
+            Publish Article
+        </button>
+
+        <div class="text-left mt-4" id="editor-errors"></div>
+    </form>
+</main>
+{% endblock %}
+
+<!-- prettier ignore -->
+{% block scripts %}
+<script type="application/javascript" src="/static/editor.js"></script>
+{% endblock %}

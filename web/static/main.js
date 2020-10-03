@@ -48,15 +48,20 @@ function fetchForm(form, options = {}) {
             submitBtn.textContent = 'Loading...';
         }
 
-        return fetch(options.action || form.action, {
-            ...options,
-            method: options.method || form.method,
-            headers: {
-                'content-type': 'application/json',
-                accept: 'application/json',
-            },
-            body: getBody && JSON.stringify(getBody(form)),
-        }).then((res) => {
+        return fetch(
+            options.action || form.action,
+            Object.assign(
+                {
+                    method: form.method,
+                    headers: {
+                        'content-type': 'application/json',
+                        accept: 'application/json',
+                    },
+                    body: getBody && JSON.stringify(getBody(form)),
+                },
+                options
+            )
+        ).then((res) => {
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;

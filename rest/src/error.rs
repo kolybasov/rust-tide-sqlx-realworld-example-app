@@ -3,6 +3,7 @@ use serde::Serialize;
 use server::{warp, ServerError};
 use std::collections::HashMap;
 use thiserror::Error;
+use tracing::error;
 use warp::{http::StatusCode, Rejection, Reply};
 
 #[derive(Error, Debug)]
@@ -85,6 +86,8 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, std::convert
             },
         }
     }
+
+    error!("error happened: {:?}", err);
 
     let body = warp::reply::json(&ErrorMessage {
         code: code.as_u16(),
