@@ -13,7 +13,9 @@ use warp::{Filter, Rejection, Reply};
 pub struct Rest;
 
 impl Rest {
-    pub fn new(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    pub fn routes(
+        state: ServerState,
+    ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
         let rest_routes = tag::routes(Arc::clone(&state))
             .or(comment::routes(Arc::clone(&state)))
             .or(user::routes(Arc::clone(&state)))

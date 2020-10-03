@@ -34,7 +34,7 @@ struct RegisterTemplate {
 }
 
 pub async fn login_handler(user: Option<User>) -> Result<impl Reply, Rejection> {
-    Ok(if let Some(_) = user {
+    Ok(if user.is_some() {
         Either::Left(warp::redirect::temporary(http::Uri::from_static("/")))
     } else {
         Either::Right(render(&LoginTemplate::default())?)
@@ -42,7 +42,7 @@ pub async fn login_handler(user: Option<User>) -> Result<impl Reply, Rejection> 
 }
 
 pub async fn register_handler(user: Option<User>) -> Result<impl Reply, Rejection> {
-    Ok(if let Some(_) = user {
+    Ok(if user.is_some() {
         Either::Left(warp::redirect::temporary(http::Uri::from_static("/")))
     } else {
         Either::Right(render(&RegisterTemplate::default())?)

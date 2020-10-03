@@ -12,7 +12,9 @@ use warp::{Filter, Rejection, Reply};
 pub struct Web;
 
 impl Web {
-    pub fn new(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    pub fn routes(
+        state: ServerState,
+    ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
         let static_dir = warp::path("static").and(warp::fs::dir("web/static"));
 
         static_dir

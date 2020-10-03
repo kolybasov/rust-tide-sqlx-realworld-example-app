@@ -8,7 +8,7 @@ pub fn auth(state: ServerState) -> impl Filter<Extract = (User,), Error = Reject
     base(state).and_then(|auth_header: Option<String>, state: ServerState| async {
         get_user_from_header(auth_header, state)
             .await
-            .map_err(|err| warp::reject::custom(err))
+            .map_err(warp::reject::custom)
     })
 }
 

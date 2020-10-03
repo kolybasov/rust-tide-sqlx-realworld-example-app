@@ -40,7 +40,7 @@ pub mod query {
         ctx: &Context,
         input: Option<GetArticlesInput>,
     ) -> Result<ArticleConnection> {
-        let params: GetArticlesParams = input.unwrap_or_else(|| GetArticlesInput::default()).into();
+        let params: GetArticlesParams = input.unwrap_or_else(GetArticlesInput::default).into();
         Ok(ArticleService::new(&ctx.get_pool().await)
             .get_articles(ctx.get_user_id(), &params)
             .await?
@@ -49,7 +49,7 @@ pub mod query {
 
     pub async fn feed(ctx: &Context, input: Option<GetArticlesInput>) -> Result<ArticleConnection> {
         let user = ctx.get_user()?;
-        let params = GetArticlesParams::from(input.unwrap_or_else(|| GetArticlesInput::default()))
+        let params = GetArticlesParams::from(input.unwrap_or_else(GetArticlesInput::default))
             .feed(Some(true));
 
         Ok(ArticleService::new(&ctx.get_pool().await)

@@ -116,8 +116,8 @@ where
             params.email,
             params.username,
             password,
-            params.image.as_deref().or(user.image.as_deref()),
-            params.bio.as_deref().or(user.bio.as_deref())
+            params.image.as_deref().or_else(|| user.image.as_deref()),
+            params.bio.as_deref().or_else(|| user.bio.as_deref())
         )
         .fetch_one(self.db)
         .await?;

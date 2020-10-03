@@ -8,13 +8,11 @@ pub fn routes(
     state: ServerState,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     // GET /tags
-    let get_tags = warp::path!("tags")
+    warp::path!("tags")
         .and(warp::get())
         .and(with_db(state))
         .and_then(get_tags_handler)
-        .boxed();
-
-    get_tags
+        .boxed()
 }
 
 pub async fn get_tags_handler(db_pool: PgPool) -> Result<impl Reply, Rejection> {

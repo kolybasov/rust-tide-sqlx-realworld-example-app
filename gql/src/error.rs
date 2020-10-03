@@ -38,7 +38,7 @@ impl IntoFieldError for GqlError {
                                     *field,
                                     Value::list(
                                         errors
-                                            .into_iter()
+                                            .iter()
                                             .map(|err| {
                                                 Value::scalar(
                                                     err.message

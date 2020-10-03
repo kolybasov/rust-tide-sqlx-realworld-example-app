@@ -19,7 +19,9 @@ use warp::{Filter, Rejection, Reply};
 pub struct Gql;
 
 impl Gql {
-    pub fn new(state: ServerState) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
+    pub fn routes(
+        state: ServerState,
+    ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
         let graphql = warp::path!("graphql")
             .and(warp::post())
             .and(make_graphql_filter(

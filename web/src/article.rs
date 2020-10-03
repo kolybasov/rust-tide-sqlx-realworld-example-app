@@ -124,7 +124,7 @@ impl EditorTemplate {
         self.article
             .as_ref()
             .map(|a| format!("/{}", a.slug))
-            .unwrap_or(String::new())
+            .unwrap_or_default()
     }
     fn method(&self) -> &str {
         self.article.as_ref().map(|_| "PUT").unwrap_or("POST")

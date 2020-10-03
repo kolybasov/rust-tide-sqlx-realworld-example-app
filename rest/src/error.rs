@@ -52,7 +52,7 @@ pub async fn handle_rejection(err: Rejection) -> Result<impl Reply, std::convert
                                 (
                                     *field,
                                     errors
-                                        .into_iter()
+                                        .iter()
                                         .map(|err| {
                                             err.message
                                                 .as_ref()

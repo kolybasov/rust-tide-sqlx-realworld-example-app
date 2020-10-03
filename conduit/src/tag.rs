@@ -25,7 +25,7 @@ where
     }
 
     pub async fn create_tags(&self, tags: &[String]) -> Result<Vec<String>> {
-        let tag_list: Vec<String> = tags.iter().map(|raw_tag| slugify(raw_tag)).collect();
+        let tag_list: Vec<String> = tags.iter().map(slugify).collect();
 
         let query_str = format!(
             "INSERT INTO tags (tag) VALUES {} ON CONFLICT (tag) DO NOTHING",
