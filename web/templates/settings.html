@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+<!-- prettier ignore -->
+{% block content %}
+<main class="container mx-auto mt-8 flex flex-col text-center">
+    <h1 class="text-4xl">Your Settings</h1>
+    <form
+        class="mx-auto max-w-lg mt-8 text-right w-full"
+        method="PUT"
+        action="/api/user"
+        onsubmit="updateUser(this);return false;"
+    >
+        <input
+            class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded text-lg focus:border-blue-500"
+            name="image"
+            type="url"
+            placeholder="URL of profile picture"
+            value="{{self.image()}}"
+        />
+        <input
+            class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded mt-4 text-lg focus:border-blue-500"
+            name="username"
+            type="text"
+            placeholder="Username"
+            value="{{self.username()}}"
+        />
+        <textarea
+            class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded text-lg focus:border-blue-500 mt-4"
+            name="bio"
+            placeholder="Short bio about you"
+            rows="6"
+        >
+            {{-self.bio()-}}
+        </textarea>
+        <input
+            class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded mt-4 text-lg focus:border-blue-500"
+            name="email"
+            type="email"
+            placeholder="Email"
+            value="{{self.email()}}"
+        />
+        <input
+            class="block border border-gray-400 w-full placehodler-gray-400 py-3 px-6 rounded mt-4 text-lg focus:border-blue-500"
+            name="password"
+            type="password"
+            placeholder="New Password"
+        />
+
+        <button
+            class="inline-block mt-4 text-lg bg-green-600 text-white rounded py-3 px-6 disabled:opacity-75 disabled:cursor-not-allowed"
+            type="submit"
+        >
+            Update Settings
+        </button>
+
+        <div class="text-left mt-4" id="settings-errors"></div>
+    </form>
+
+    <form method="POST" action="/logout" class="mx-auto max-w-lg text-left w-full border-t border-gray-300">
+        <button
+            class="inline-block mt-4 text-md border border-red-600 text-red-600 rounded py-1 px-2 hover:bg-red-600 hover:text-white"
+            type="submit"
+        >
+            Or click here to logout
+        </button>
+    </form>
+</main>
+{% endblock %}
+
+<!-- prettier ignore -->
+{% block scripts %}
+<script type="application/javascript" src="/static/settings.js"></script>
+{% endblock %}

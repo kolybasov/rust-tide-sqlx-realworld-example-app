@@ -27,6 +27,13 @@ pub fn set_cookie_token(token: &str) -> String {
     )
 }
 
+pub fn delete_cookie_token() -> String {
+    format!(
+        "{}; Expires=Thu, Jan 01 1970 00:00:00 UTC",
+        set_cookie_token("deleted")
+    )
+}
+
 fn base(
     state: ServerState,
 ) -> impl Filter<Extract = (Option<String>, ServerState), Error = Infallible> + Clone {

@@ -78,3 +78,7 @@ function fetchForm(form, options = {}) {
         });
     };
 }
+
+function getFormFieldValue(form, field) {
+    return form.elements[field].value;
+}
